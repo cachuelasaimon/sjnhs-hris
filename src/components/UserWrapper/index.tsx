@@ -1,9 +1,12 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 
 import InventoryIcon from '@mui/icons-material/Inventory';
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import MenuIcon from '@mui/icons-material/Menu';
+import PeopleIcon from '@mui/icons-material/People';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import StarIcon from '@mui/icons-material/Star';
+import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import { Container } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -119,7 +122,14 @@ export default function TemporaryDrawer({
       <Divider />
       <List>
         {[
-          { label: 'Cart', Icon: ShoppingCartIcon, link: '/cart' },
+          { label: 'Employee List', Icon: PeopleIcon, link: '/home' },
+          {
+            label: 'Step Increment',
+            Icon: SwitchAccessShortcutIcon,
+            link: '/home',
+          },
+          { label: 'Promotions', Icon: StarIcon, link: '/home' },
+          { label: 'Loyalty Pay', Icon: LoyaltyIcon, link: '/home' },
           // { label: "Wishlist", Icon: StarIcon, link: "/wishlist" },
           // { label: "Contact", Icon: PhoneIcon, link: "/contact" },
         ].map(({ label, Icon, link }) => (

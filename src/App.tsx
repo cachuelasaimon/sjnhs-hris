@@ -32,6 +32,16 @@ const Pages: IPage[] = [
     requireAuth: false,
     requireAdmin: false,
   },
+  {
+    path: '/home',
+    Component: () => (
+      <UserWrapper hasContainer>
+        <h1>Home </h1>
+      </UserWrapper>
+    ),
+    requireAuth: false,
+    requireAdmin: false,
+  },
   { path: '*', Component: NotFound, requireAuth: false, requireAdmin: false },
 ];
 

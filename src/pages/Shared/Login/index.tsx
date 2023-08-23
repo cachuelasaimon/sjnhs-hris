@@ -77,7 +77,8 @@ const LoginPage: React.FC = (props: any) => {
       toggleTheme={props?.toggleTheme}
       carouselItems={[
         {
-          img: 'https://firebasestorage.googleapis.com/v0/b/oshoppee-63e05.appspot.com/o/dev%2Fimages%2Flogo%2Fstorefront-refined.png?alt=media&token=22ce5c7c-9210-460f-b9c2-e52cec87525c',
+          img: 'https://firebasestorage.googleapis.com/v0/b/samsantech-f6cf0.appspot.com/o/SJDMHS-LOGO.png?alt=media&token=363f417e-e821-4570-83db-f098829dfd48',
+          text: 'San Jose Del Monte National High School - HRIS',
         },
       ]}
     >
@@ -172,7 +173,7 @@ const LoginPage: React.FC = (props: any) => {
               >
                 Login
               </LoadingButton>
-              <Box mt={1}>
+              {/* <Box mt={1}>
                 <Typography variant='caption'>
                   Don&apos;t have an account?{' '}
                   <ButtonBase
@@ -185,7 +186,7 @@ const LoginPage: React.FC = (props: any) => {
                     Create an account
                   </ButtonBase>
                 </Typography>
-              </Box>
+              </Box> */}
             </Box>
           </Form>
         </Formik>
