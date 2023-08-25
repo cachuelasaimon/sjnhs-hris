@@ -73,7 +73,7 @@ const SignUpPage: React.FC = () => {
 
   useEffect(() => {
     if (loggedIn && !isLoading) {
-      navigate('/home');
+      navigate('/employee-list');
     } else {
       checkState();
     }
