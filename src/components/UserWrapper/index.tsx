@@ -103,7 +103,7 @@ export default function TemporaryDrawer({
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        <ListItem button onClick={() => navigate('/home')}>
+        <ListItem button onClick={() => navigate('/employee-list')}>
           <Box display='flex' alignItems='center'>
             <ListItemIcon>
               <img
@@ -122,14 +122,14 @@ export default function TemporaryDrawer({
       <Divider />
       <List>
         {[
-          { label: 'Employee List', Icon: PeopleIcon, link: '/home' },
+          { label: 'Employee List', Icon: PeopleIcon, link: '/employee-list' },
           {
             label: 'Step Increment',
             Icon: SwitchAccessShortcutIcon,
-            link: '/home',
+            link: '/step-increment',
           },
-          { label: 'Promotions', Icon: StarIcon, link: '/home' },
-          { label: 'Loyalty Pay', Icon: LoyaltyIcon, link: '/home' },
+          { label: 'Promotions', Icon: StarIcon, link: '/promotions' },
+          { label: 'Loyalty Pay', Icon: LoyaltyIcon, link: '/loyalty-pay' },
           // { label: "Wishlist", Icon: StarIcon, link: "/wishlist" },
           // { label: "Contact", Icon: PhoneIcon, link: "/contact" },
         ].map(({ label, Icon, link }) => (

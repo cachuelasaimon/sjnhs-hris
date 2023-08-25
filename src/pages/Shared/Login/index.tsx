@@ -43,7 +43,7 @@ const LoginPage: React.FC = (props: any) => {
 
   useEffect(() => {
     if (loggedIn && !isLoading) {
-      navigate('/home');
+      navigate('/employee-list');
     } else {
       checkState();
     }
@@ -60,7 +60,7 @@ const LoginPage: React.FC = (props: any) => {
         values.email,
         values.password
       );
-      if (user) navigate('/home');
+      if (user) navigate('/employee-list');
       // window.setTimeout(() => resetForm(), 1500);
     } catch (err: any) {
       if (err.message.includes('auth/wrong-password'))

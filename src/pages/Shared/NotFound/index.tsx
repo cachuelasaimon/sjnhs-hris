@@ -19,7 +19,7 @@ const NotFound = () => {
   const classes = useStyles();
   const navigate = useNavigate();
   const handleGoHome = () => {
-    navigate('/home');
+    navigate('/employee-list');
   };
   return (
     <Grid

@@ -14,7 +14,13 @@ import '@fontsource/poppins/700.css';
 import { UserWrapper } from './components';
 
 import { WithAuth } from '~/layouts';
-import { ForgotPassword, Login, NotFound, SignUp } from '~/pages';
+import {
+  ForgotPassword,
+  Login,
+  NotFound,
+  SignUp,
+  StepIncrement,
+} from '~/pages';
 import CustomTheme from '~/theme';
 import { IPage } from '~/types';
 
@@ -33,13 +39,39 @@ const Pages: IPage[] = [
     requireAdmin: false,
   },
   {
-    path: '/home',
+    path: '/employee-list',
     Component: () => (
       <UserWrapper hasContainer>
-        <h1>Home </h1>
+        <h1>Employee List</h1>
       </UserWrapper>
     ),
-    requireAuth: false,
+    requireAuth: true,
+    requireAdmin: false,
+  },
+  {
+    path: '/step-increment',
+    Component: StepIncrement,
+    requireAuth: true,
+    requireAdmin: false,
+  },
+  {
+    path: '/promotions',
+    Component: () => (
+      <UserWrapper hasContainer>
+        <h1>Promotions</h1>
+      </UserWrapper>
+    ),
+    requireAuth: true,
+    requireAdmin: false,
+  },
+  {
+    path: '/loyalty-pay',
+    Component: () => (
+      <UserWrapper hasContainer>
+        <h1>Loyalty Pay</h1>
+      </UserWrapper>
+    ),
+    requireAuth: true,
     requireAdmin: false,
   },
   { path: '*', Component: NotFound, requireAuth: false, requireAdmin: false },
