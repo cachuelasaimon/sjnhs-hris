@@ -4,19 +4,23 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Button, Paper, Tab, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-import ConfirmEndorsementModal from './modals/ConfirmEndorsementModal';
-
 import { MOCK_EMPLOYEES } from '~/assets';
 import { UserWrapper } from '~/components';
 import { getLatestEntry } from '~/utils';
 
-const StepIncrement: FC = () => {
+/** Description
+ * ----------
+ * This component should handle the following:
+ * - Promotion of employees
+ * - Check the eligibility of employees for promotion by displaying relevant data
+ */
+const Promotions: FC = () => {
   // ** Modal Handling
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [_openModal, setOpenModal] = useState(false);
+  const [_selectedEmployee, setSelectedEmployee] = useState(null);
 
   const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
+  const _handleCloseModal = () => setOpenModal(false);
 
   // ** Tab Handling
   const [activeTab, setActiveTab] = useState('0');
@@ -28,11 +32,11 @@ const StepIncrement: FC = () => {
     <UserWrapper hasContainer>
       {/* // ** PAGE TITLE */}
       <Typography variant='h3' gutterBottom>
-        Step Increment
+        Promotions
       </Typography>
       <Typography sx={{ mb: 4 }}>
         {' '}
-        Endorse employees that are eligible for salary step increment{' '}
+        Endorse employees that are eligible for promotions{' '}
       </Typography>
 
       {/* // ** PAGE TABS */}
@@ -45,9 +49,9 @@ const StepIncrement: FC = () => {
             },
           }}
         >
-          <Tab label='For Endorsement' value={'0'} />
-          <Tab label='Pending Approval' value={'1'} />
-          <Tab label='Approved Endorsements' value={'2'} />
+          <Tab label='Promotion Endorsement' value={'0'} />
+          <Tab label='Pending Promotions' value={'1'} />
+          <Tab label='Approved Promotions' value={'2'} />
         </TabList>
         <TabPanel value={'0'}>
           {/* // ** FIRST TAB - FOR ENDORSEMENT*/}
@@ -136,23 +140,22 @@ const StepIncrement: FC = () => {
               />
             </Paper>
 
-            {selectedEmployee && (
+            {/* {selectedEmployee && (
               <ConfirmEndorsementModal
                 open={openModal}
                 onClose={handleCloseModal}
                 employee={selectedEmployee}
               />
-            )}
+            )} */}
           </>
         </TabPanel>
         {/* // ** SECOND TAB - FOR PENDING APPROVAL*/}
-        <TabPanel value={'1'}>Pending Approvals</TabPanel>
+        <TabPanel value={'1'}>Pending Promotions</TabPanel>
 
         {/* // ** THIRD - APPROVED*/}
-        <TabPanel value={'2'}>Approved Endorsements</TabPanel>
+        <TabPanel value={'2'}>Approved Promotions</TabPanel>
       </TabContext>
     </UserWrapper>
   );
 };
-
-export default StepIncrement;
+export default Promotions;

@@ -84,7 +84,11 @@ export const getCollectionWithQuery: (
   }
 };
 
-export const Get = async <T,>({ docRef }: IGetOneDocumentProps) => {
+export const Get = async <T,>({
+  docRef,
+}: {
+  docRef: DocumentReference | string;
+}) => {
   try {
     const snap: DocumentSnapshot = await getDoc(
       typeof docRef === 'string' ? doc(database, docRef) : docRef
