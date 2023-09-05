@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 
 import { AuthBase } from '~/components';
-import { auth, useErrorNotif, useLogin } from '~/utils';
+import { Get, auth, useErrorNotif, useLogin } from '~/utils';
 
 const LoginPage: React.FC = (props: any) => {
   const navigate = useNavigate();
@@ -31,6 +31,22 @@ const LoginPage: React.FC = (props: any) => {
   const theme = useTheme();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const [companyDetails, setCompanyDetails] = useState<
+    { companyName: string; logo: string } | undefined
+  >(undefined);
+
+  useEffect(() => {
+    const fetchCompanyDetails = async () => {
+      const result = await Get<{ companyName: string; logo: string }>({
+        docRef: 'database/dev',
+      });
+
+      setCompanyDetails(result);
+    };
+
+    fetchCompanyDetails();
+  }, []);
 
   // if url has email, use it to prefill email field
 
@@ -72,108 +88,110 @@ const LoginPage: React.FC = (props: any) => {
     }
   };
   return (
-    <AuthBase
-      darkMode={props?.darkMode}
-      toggleTheme={props?.toggleTheme}
-      carouselItems={[
-        {
-          img: 'https://firebasestorage.googleapis.com/v0/b/samsantech-f6cf0.appspot.com/o/SJDMHS-LOGO.png?alt=media&token=363f417e-e821-4570-83db-f098829dfd48',
-          text: 'San Jose Del Monte National High School - HRIS',
-        },
-      ]}
-    >
-      <Box
-        display='flex'
-        minHeight='100vh'
-        justifyContent='center'
-        alignItems='center'
-        flexDirection='column'
-      >
-        <Typography
-          color='textPrimary'
-          gutterBottom
-          variant='h4'
-          style={{ textAlign: 'center' }}
+    <>
+      {companyDetails && Object.keys(companyDetails).length > 0 && (
+        <AuthBase
+          darkMode={props?.darkMode}
+          toggleTheme={props?.toggleTheme}
+          carouselItems={[
+            {
+              img: companyDetails?.logo || '',
+              text: 'San Jose Del Monte National High School - HRIS',
+            },
+          ]}
         >
-          Login
-        </Typography>
-        <Formik
-          initialValues={{ email: '', password: '' }}
-          validationSchema={Yup.object().shape({
-            email: Yup.string()
-              .email('Must be a valid email')
-              .required('Required'),
-            password: Yup.string()
-              .min(8, 'Minimum of 8 characters')
-              .required('Required'),
-          })}
-          onSubmit={handleSubmit}
-        >
-          <Form>
-            {' '}
-            <Box display='flex' flexDirection='column'>
-              <Box
-                sx={{
-                  marginTop: theme.spacing(2),
-                }}
-              >
-                <Field
-                  name='email'
-                  label='Email'
-                  component={TextField}
-                  fullWidth
-                  autoFocus
-                />
-              </Box>
-              <Box
-                sx={{
-                  marginTop: theme.spacing(2),
-                }}
-              >
-                <Field
-                  component={TextField}
-                  required
-                  name='password'
-                  label='Password'
-                  autoComplete='password'
-                  type={showPassword ? 'text' : 'password'}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          aria-label='toggle password visibility'
-                          onClick={handleChangeVisibility}
-                          onMouseDown={handleMouseDownPassword}
-                        >
-                          {showPassword ? <HideIcon /> : <ShowIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Box>
+          <Box
+            display='flex'
+            minHeight='100vh'
+            justifyContent='center'
+            alignItems='center'
+            flexDirection='column'
+          >
+            <Typography
+              color='textPrimary'
+              gutterBottom
+              variant='h4'
+              style={{ textAlign: 'center' }}
+            >
+              Login
+            </Typography>
+            <Formik
+              initialValues={{ email: '', password: '' }}
+              validationSchema={Yup.object().shape({
+                email: Yup.string()
+                  .email('Must be a valid email')
+                  .required('Required'),
+                password: Yup.string()
+                  .min(8, 'Minimum of 8 characters')
+                  .required('Required'),
+              })}
+              onSubmit={handleSubmit}
+            >
+              <Form>
+                {' '}
+                <Box display='flex' flexDirection='column'>
+                  <Box
+                    sx={{
+                      marginTop: theme.spacing(2),
+                    }}
+                  >
+                    <Field
+                      name='email'
+                      label='Email'
+                      component={TextField}
+                      fullWidth
+                      autoFocus
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      marginTop: theme.spacing(2),
+                    }}
+                  >
+                    <Field
+                      component={TextField}
+                      required
+                      name='password'
+                      label='Password'
+                      autoComplete='password'
+                      type={showPassword ? 'text' : 'password'}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              aria-label='toggle password visibility'
+                              onClick={handleChangeVisibility}
+                              onMouseDown={handleMouseDownPassword}
+                            >
+                              {showPassword ? <HideIcon /> : <ShowIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
 
-              <Box mt={1}>
-                <ButtonBase
-                  sx={{
-                    ...theme.typography.caption,
-                    fontWeight: 'bold',
-                  }}
-                  onClick={() => navigate('/forgot-password')}
-                >
-                  Forgot Password
-                </ButtonBase>
-              </Box>
+                  <Box mt={1}>
+                    <ButtonBase
+                      sx={{
+                        ...theme.typography.caption,
+                        fontWeight: 'bold',
+                      }}
+                      onClick={() => navigate('/forgot-password')}
+                    >
+                      Forgot Password
+                    </ButtonBase>
+                  </Box>
 
-              <LoadingButton
-                loading={isSubmitting}
-                style={{ marginTop: theme.spacing() }}
-                variant='contained'
-                type='submit'
-              >
-                Login
-              </LoadingButton>
-              {/* <Box mt={1}>
+                  <LoadingButton
+                    loading={isSubmitting}
+                    style={{ marginTop: theme.spacing() }}
+                    variant='contained'
+                    type='submit'
+                  >
+                    Login
+                  </LoadingButton>
+                  {/* <Box mt={1}>
                 <Typography variant='caption'>
                   Don&apos;t have an account?{' '}
                   <ButtonBase
@@ -187,11 +205,13 @@ const LoginPage: React.FC = (props: any) => {
                   </ButtonBase>
                 </Typography>
               </Box> */}
-            </Box>
-          </Form>
-        </Formik>
-      </Box>
-    </AuthBase>
+                </Box>
+              </Form>
+            </Formik>
+          </Box>
+        </AuthBase>
+      )}
+    </>
   );
 };
 

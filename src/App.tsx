@@ -18,6 +18,7 @@ import {
   ForgotPassword,
   Login,
   NotFound,
+  Promotions,
   SignUp,
   StepIncrement,
 } from '~/pages';
@@ -56,11 +57,7 @@ const Pages: IPage[] = [
   },
   {
     path: '/promotions',
-    Component: () => (
-      <UserWrapper hasContainer>
-        <h1>Promotions</h1>
-      </UserWrapper>
-    ),
+    Component: Promotions,
     requireAuth: true,
     requireAdmin: false,
   },

@@ -12,13 +12,12 @@
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseCreds = {
-  apiKey: 'AIzaSyC2G0XR-BPlMHPU6U0yi_Dk-8LTc50kxko',
-  authDomain: 'samsantech-f6cf0.firebaseapp.com',
-  projectId: 'samsantech-f6cf0',
-  storageBucket: 'samsantech-f6cf0.appspot.com',
-  messagingSenderId: '88341314142',
-  appId: '1:88341314142:web:d6371ed9536923d6aa92cf',
-  measurementId: 'G-PBRKS3WK0E',
+  apiKey: 'AIzaSyCaErYJ4V8hDp34FZNLzXZjd-B8wO1PAds',
+  authDomain: 'sjdmnhs-hris.firebaseapp.com',
+  projectId: 'sjdmnhs-hris',
+  storageBucket: 'sjdmnhs-hris.appspot.com',
+  messagingSenderId: '50664414533',
+  appId: '1:50664414533:web:c304e518b03988ef0ef22c',
 };
 
 export default firebaseCreds;
