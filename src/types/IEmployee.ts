@@ -37,6 +37,33 @@ interface motherName {
   firstName: string;
   middleName: string;
 }
+interface civilService {
+  careerService: string;
+  examinationDate: string;
+  examinationPlace: string;
+  license: 'Number' | 'Date of Validity';
+}
+interface workExperience {
+  inclusiveDate: 'From' | 'To';
+  positionTitle: string;
+  department: string;
+  monthlySalary: string;
+  salaryGrade: string;
+  appointmentStatus: string;
+  govtService: string;
+}
+interface trainingProg {
+  title: string;
+  inclusiveDates: 'From' | 'To';
+  hoursNo: string;
+  ldType: string;
+  conductedBy: string;
+}
+interface otherInfo {
+  specialSkills: string;
+  recognition: string;
+  organization: string;
+}
 
 export interface IEmployee extends BaseSchema {
   firstName: string;
@@ -65,6 +92,9 @@ export interface IEmployee extends BaseSchema {
   familyBackground: familyBackground;
   fatherName: fatherName;
   motherName: motherName;
-
+  civilService: civilService;
+  workExperience: workExperience;
+  trainingProg: trainingProg;
+  otherInfo: otherInfo;
   educationalBackgrounds: educationalBackground[];
 }
