@@ -12,38 +12,42 @@ interface educationalBackground {
   degree: string;
   attendancePeriod: string;
   yearGraduated: string;
-  honors: string;
+  honors?: string;
 }
-interface BloodTypeInfo {
+interface IBloodTypeInfo {
   type: string;
   rhFactor: '+' | '-';
 }
-interface familyBackground {
-  spouseSurname: string;
-  firstName: string;
-  middleName: string;
+interface IFamilyBackground {
+  spouseSurname?: string;
+  firstName?: string;
+  middleName?: string;
   occupation: string;
-  businessName: string;
-  telephoneNo: string;
+  businessName?: string;
+  telephoneNo?: string;
 }
-interface fatherName {
-  surName: string;
+
+interface IName {
+  surname: string;
+  middleName?: string;
+  nameExtension?: string;
   firstName: string;
-  middleName: string;
-  nameExtension: string;
 }
-interface motherName {
-  surName: string;
-  firstName: string;
-  middleName: string;
-}
-interface civilService {
+
+interface ICivilService {
   careerService: string;
   examinationDate: string;
   examinationPlace: string;
-  license: 'Number' | 'Date of Validity';
+  license: {
+    number: string;
+    dateOfValidty: string;
+  };
 }
-interface workExperience {
+
+const civilService : ICivilService = {
+  license: ,
+}
+interface IWorkExperience {
   inclusiveDate: 'From' | 'To';
   positionTitle: string;
   department: string;
@@ -52,49 +56,49 @@ interface workExperience {
   appointmentStatus: string;
   govtService: string;
 }
-interface trainingProg {
+interface ITrainingProg {
   title: string;
   inclusiveDates: 'From' | 'To';
   hoursNo: string;
   ldType: string;
   conductedBy: string;
 }
-interface otherInfo {
-  specialSkills: string;
-  recognition: string;
-  organization: string;
+interface IOtherInfo {
+  specialSkills: string[];
+  recognition: string[];
+  organization: string[];
 }
 
 export interface IEmployee extends BaseSchema {
   firstName: string;
-  surName: string;
-  middleName: string;
-  nameExtension: string;
+  surname: string;
+  middleName?: string;
+  nameExtension?: string;
   birthDay: string;
-  birthPlace: string;
-  gender: string;
-  civilStatus: string;
-  height: number;
-  weight: number;
-  bloodType: BloodTypeInfo;
-  gsisId: string;
-  pagibigId: string;
-  philhealthNo: string;
-  sssNO: string;
-  tinNo: string;
-  agencyEmployeeno: string;
-  citizenShip: string;
-  residentialAddress: string;
-  permanentAddress: string;
-  telephoneNo: string;
-  mobileNo: string;
-  emailAddress: string;
-  familyBackground: familyBackground;
-  fatherName: fatherName;
-  motherName: motherName;
-  civilService: civilService;
-  workExperience: workExperience;
-  trainingProg: trainingProg;
-  otherInfo: otherInfo;
-  educationalBackgrounds: educationalBackground[];
+  birthPlace?: string;
+  gender?: string;
+  civilStatus?: string;
+  height?: string;
+  weight?: string;
+  bloodType?: IBloodTypeInfo;
+  gsisId?: string;
+  pagibigId?: string;
+  philhealthNo?: string;
+  sssNo?: string;
+  tinNo?: string;
+  agencyEmployeeNo?: string;
+  citizenShip?: string;
+  residentialAddress?: string;
+  permanentAddress?: string;
+  telephoneNo?: string;
+  mobileNo?: string;
+  emailAddress?: string;
+  familyBackground?: IFamilyBackground;
+  fatherName?: IName;
+  motherName?: IName;
+  civilService?: ICivilService;
+  workExperience?: IWorkExperience[];
+  trainingProg?: ITrainingProg;
+  otherInfo?: IOtherInfo;
+  educationalBackgrounds?: educationalBackground[];
 }
