@@ -44,9 +44,6 @@ interface ICivilService {
   };
 }
 
-const civilService : ICivilService = {
-  license: ,
-}
 interface IWorkExperience {
   inclusiveDate: 'From' | 'To';
   positionTitle: string;
