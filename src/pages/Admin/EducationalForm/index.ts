@@ -1,1 +1,1 @@
-export { default as EducationalForm } from './EducationalForm';
+export { default } from './EducationalForm';

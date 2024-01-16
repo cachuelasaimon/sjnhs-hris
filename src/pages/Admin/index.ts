@@ -7,4 +7,4 @@ export { default as Promotions } from './Promotions';
 export { default as EmployeeList } from './EmployeeList';
 export { default as PersonalInfo } from './PersonalInfo';
 export { default as FamilyBg } from './FamilyBg';
-export { default as EducationalForm } from 'EducationalForm';
+export { default as EducationalForm } from './EducationalForm';
