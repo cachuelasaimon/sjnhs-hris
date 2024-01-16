@@ -15,9 +15,14 @@ import { UserWrapper } from './components';
 
 import { WithAuth } from '~/layouts';
 import {
+  EducationalForm,
+  //EducationForm,//
+  EmployeeList,
+  FamilyBg,
   ForgotPassword,
   Login,
   NotFound,
+  PersonalInfo,
   Promotions,
   SignUp,
   StepIncrement,
@@ -41,11 +46,7 @@ const Pages: IPage[] = [
   },
   {
     path: '/employee-list',
-    Component: () => (
-      <UserWrapper hasContainer>
-        <h1>Employee List</h1>
-      </UserWrapper>
-    ),
+    Component: EmployeeList,
     requireAuth: true,
     requireAdmin: false,
   },
@@ -72,6 +73,24 @@ const Pages: IPage[] = [
     requireAdmin: false,
   },
   { path: '*', Component: NotFound, requireAuth: false, requireAdmin: false },
+  {
+    path: '/personal-info',
+    Component: PersonalInfo,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/family-bg',
+    Component: FamilyBg,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/educational-form',
+    Component: EducationalForm,
+    requireAuth: false,
+    requireAdmin: false,
+  },
 ];
 
 // const useStyles = makeStyles((theme: Theme) => ({
