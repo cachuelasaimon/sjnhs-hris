@@ -1,18 +1,5 @@
 {
   "projects": {
-    "default": "oshoppee-63e05"
-  },
-  "targets": {
-    "oshoppee-63e05": {
-      "hosting": {
-        "dev": [
-          "dev-store-sync"
-        ],
-        "prod": [
-          "store-sync"
-        ]
-      }
-    }
-  },
-  "etags": {}
+    "default": "sjdmnhs-hris"
+  }
 }

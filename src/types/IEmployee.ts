@@ -8,18 +8,19 @@ interface educationalBackground {
     | 'College'
     | 'Graduate Studies';
 
-  school: string;
-  degree: string;
-  attendancePeriod: string;
-  yearGraduated: string;
+  schoolName: string;
+  educationalAttainment?: string;
+  startDate: string;
+  endDate: string;
+  schoolYearGraduated: string;
   honors?: string;
-}
-interface IBloodTypeInfo {
-  type: string;
-  rhFactor: '+' | '-';
+  degree?: {
+    major?: string;
+    minor?: string;
+  };
 }
 interface IFamilyBackground {
-  spouseSurname?: string;
+  spouseLastname?: string;
   firstName?: string;
   middleName?: string;
   occupation: string;
@@ -28,7 +29,7 @@ interface IFamilyBackground {
 }
 
 interface IName {
-  surname: string;
+  lastName: string;
   middleName?: string;
   nameExtension?: string;
   firstName: string;
@@ -45,8 +46,9 @@ interface ICivilService {
 }
 
 interface IWorkExperience {
-  inclusiveDate: 'From' | 'To';
-  positionTitle: string;
+  startDate: string;
+  endDate: string;
+  position: string;
   department: string;
   monthlySalary: string;
   salaryGrade: string;
@@ -55,7 +57,8 @@ interface IWorkExperience {
 }
 interface ITrainingProg {
   title: string;
-  inclusiveDates: 'From' | 'To';
+  startDate: string;
+  endDate: string;
   hoursNo: string;
   ldType: string;
   conductedBy: string;
@@ -67,8 +70,11 @@ interface IOtherInfo {
 }
 
 export interface IEmployee extends BaseSchema {
+  displayPicture?: string;
+  employeeId: string;
+  // plantillaNumber: string;
   firstName: string;
-  surname: string;
+  lastName: string;
   middleName?: string;
   nameExtension?: string;
   birthDay: string;
@@ -77,25 +83,27 @@ export interface IEmployee extends BaseSchema {
   civilStatus?: string;
   height?: string;
   weight?: string;
-  bloodType?: IBloodTypeInfo;
+  bloodType?: string;
   gsisId?: string;
-  pagibigId?: string;
-  philhealthNo?: string;
+  pagibigNumber?: string;
+  philhealthNumber?: string;
   sssNo?: string;
   tinNo?: string;
-  agencyEmployeeNo?: string;
+  agencyEmployeeNumber?: string;
   citizenShip?: string;
   residentialAddress?: string;
   permanentAddress?: string;
-  telephoneNo?: string;
-  mobileNo?: string;
-  emailAddress?: string;
+  contact: {
+    email: string;
+    phone: string;
+    telephone?: string;
+  };
   familyBackground?: IFamilyBackground;
   fatherName?: IName;
   motherName?: IName;
   civilService?: ICivilService;
-  workExperience?: IWorkExperience[];
-  trainingProg?: ITrainingProg;
+  employeeRecord: IWorkExperience[];
+  trainingProg?: ITrainingProg[];
   otherInfo?: IOtherInfo;
-  educationalBackgrounds?: educationalBackground[];
+  educationalRecord?: educationalBackground[];
 }

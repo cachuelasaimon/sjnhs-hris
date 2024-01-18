@@ -1,5 +1,5 @@
 export const currency: string =
-  (import.meta as any).env.VITE_APP_CURRENCY || 'USD';
+  (import.meta as any).env.VITE_APP_CURRENCY || 'PHP';
 export const locale: string = (import.meta as any).env.VITE_APP_LOCALE || 'en';
 
 export const SALARY_GRADE = [
@@ -37,3 +37,16 @@ export const SALARY_GRADE = [
   [331954, 338649, 345478, 352445, 359553, 366804, 374202, 381748],
   [419144, 431718],
 ];
+
+export const salaryGradeOptions = SALARY_GRADE.reduce(
+  (acc: { value: string; label: string }[], step: number[], stepIdx) => {
+    step.forEach((increment, incIdx) =>
+      acc.push({
+        value: `${stepIdx + 1}-${incIdx + 1}`,
+        label: `Salary Grade ${stepIdx + 1} - Step ${incIdx + 1}`,
+      })
+    );
+    return acc;
+  },
+  []
+);
