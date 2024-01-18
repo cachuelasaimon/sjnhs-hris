@@ -10,6 +10,8 @@ export * from './INewIUser';
 export * from './IAddress';
 export * from './IOrder';
 export * from './ICompanyInformation';
+export * from './IEndorsement';
+export * from './IEmployee';
 
 // Page Props
 export * from './pageInterfaces';

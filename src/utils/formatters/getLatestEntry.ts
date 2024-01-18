@@ -15,8 +15,8 @@ export const getLatestEntry = <T, K extends keyof T>({
   referenceKey: K;
 }) =>
   arr.reduce((prev, curr) =>
-    format(parseISO((prev[referenceKey] || '') as string), 'PP') >
-    format(parseISO((curr[referenceKey] || '') as string), 'PP')
+    format(parseISO((prev[referenceKey] || '') as string), 'yyyy-MM-dd') >
+    format(parseISO((curr[referenceKey] || '') as string), 'yyyy-MM-dd')
       ? prev
       : curr
   );

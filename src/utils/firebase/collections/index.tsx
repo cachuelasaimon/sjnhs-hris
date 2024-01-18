@@ -32,6 +32,8 @@ interface ICollections {
   orders: ICollection;
   products: ICollection;
   users: ICollection;
+  employees: ICollection;
+  endorsements: ICollection;
 }
 
 export const collections: ICollections = {
@@ -58,5 +60,13 @@ export const collections: ICollections = {
   users: {
     ref: collection(database, `${db_dev}/users`),
     string: `${db_dev}/users`,
+  },
+  employees: {
+    ref: collection(database, `${db_dev}/employees`),
+    string: `${db_dev}/employees`,
+  },
+  endorsements: {
+    ref: collection(database, `${db_dev}/endorsements`),
+    string: `${db_dev}/endorsements`,
   },
 };
