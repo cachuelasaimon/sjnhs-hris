@@ -38,3 +38,5 @@ export * from './createHashMap';
 
 export const altImageName: (imgName: string) => string = (imgName) =>
   imgName.toLowerCase().split(' ').join('-');
+
+export * from './useGetWindowSize';
