@@ -15,8 +15,7 @@ import { UserWrapper } from './components';
 
 import { WithAuth } from '~/layouts';
 import {
-  EducationalForm,
-  //EducationForm,//
+  EducationForm,
   EmployeeList,
   FamilyBg,
   ForgotPassword,
@@ -86,8 +85,8 @@ const Pages: IPage[] = [
     requireAdmin: false,
   },
   {
-    path: '/educational-form',
-    Component: EducationalForm,
+    path: '/education-form',
+    Component: EducationForm,
     requireAuth: false,
     requireAdmin: false,
   },
