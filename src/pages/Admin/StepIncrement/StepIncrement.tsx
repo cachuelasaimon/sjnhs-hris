@@ -174,12 +174,15 @@ const StepIncrement: FC = () => {
                       headerName: 'Salary Grade',
                       width: 180,
                       valueGetter: (params: any) => {
-                        const employeeRecord = getLatestEntry({
-                          arr: params.row
-                            .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                          referenceKey: 'startDate',
-                        });
-                        return employeeRecord.salaryGrade;
+                        const employeeRecord =
+                          params.row.employeeRecord > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
+                                referenceKey: 'startDate',
+                              })
+                            : null;
+                        return employeeRecord?.salaryGrade || 'Not Available';
                       },
                     },
                     {
