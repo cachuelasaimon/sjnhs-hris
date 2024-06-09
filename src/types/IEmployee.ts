@@ -1,13 +1,12 @@
 import { BaseSchema } from './BaseSchema';
 
-interface educationalBackground {
+interface IEducationalBackground {
   level:
     | 'Elementary'
     | 'Secondary'
     | 'Vocational/Trade Course'
     | 'College'
     | 'Graduate Studies';
-
   schoolName: string;
   educationalAttainment?: string;
   startDate: string;
@@ -19,30 +18,35 @@ interface educationalBackground {
     minor?: string;
   };
 }
+
 interface IFamilyBackground {
   spouseLastname?: string;
-  firstName?: string;
-  middleName?: string;
-  occupation: string;
-  businessName?: string;
-  telephoneNo?: string;
+  spouseFirstName?: string;
+  spouseMiddleName?: string;
+  spouseOccupation?: string;
+  spouseBusinessName?: string;
+  spouseTelephoneNo?: string;
+  fatherLastName?: string;
+  fatherFirstName?: string;
+  fatherMiddleName?: string;
+  motherLastName?: string;
+  motherFirstName?: string;
+  motherMiddleName?: string;
+  childName?: string;
+  childBirthDate?: string;
 }
 
-interface IName {
-  lastName: string;
-  middleName?: string;
-  nameExtension?: string;
-  firstName: string;
+interface ILicense {
+  number?: string;
+  dateOfValidty?: string;
 }
 
 interface ICivilService {
-  careerService: string;
-  examinationDate: string;
-  examinationPlace: string;
-  license: {
-    number: string;
-    dateOfValidty: string;
-  };
+  careerService?: string;
+  examinationDate?: string;
+  examinationPlace?: string;
+  rating?: string;
+  license?: ILicense;
 }
 
 interface IWorkExperience {
@@ -55,6 +59,7 @@ interface IWorkExperience {
   appointmentStatus: string;
   govtService: string;
 }
+
 interface ITrainingProg {
   title: string;
   startDate: string;
@@ -63,21 +68,27 @@ interface ITrainingProg {
   ldType: string;
   conductedBy: string;
 }
+
 interface IOtherInfo {
   specialSkills: string[];
   recognition: string[];
   organization: string[];
 }
 
+interface IContact {
+  email?: string;
+  phone?: string;
+  telephone?: string;
+}
+
 export interface IEmployee extends BaseSchema {
+  employeeId?: string;
   displayPicture?: string;
-  employeeId: string;
-  // plantillaNumber: string;
-  firstName: string;
-  lastName: string;
+  lastName?: string;
+  firstName?: string;
   middleName?: string;
   nameExtension?: string;
-  birthDay: string;
+  birthDay?: string;
   birthPlace?: string;
   gender?: string;
   civilStatus?: string;
@@ -93,17 +104,11 @@ export interface IEmployee extends BaseSchema {
   citizenShip?: string;
   residentialAddress?: string;
   permanentAddress?: string;
-  contact: {
-    email: string;
-    phone: string;
-    telephone?: string;
-  };
-  familyBackground?: IFamilyBackground;
-  fatherName?: IName;
-  motherName?: IName;
+  contact?: IContact;
+  familyBackground: IFamilyBackground;
   civilService?: ICivilService;
-  employeeRecord: IWorkExperience[];
+  employeeRecord?: IWorkExperience[];
   trainingProg?: ITrainingProg[];
   otherInfo?: IOtherInfo;
-  educationalRecord?: educationalBackground[];
+  educationalRecord?: IEducationalBackground[];
 }

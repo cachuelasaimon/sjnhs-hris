@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
-// eslint-disable-next-line
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import '@fontsource/poppins/300.css';
@@ -11,20 +10,25 @@ import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/700.css';
 
-import { UserWrapper } from './components';
-
 import { WithAuth } from '~/layouts';
 import {
-  EducationForm,
+  CivilService,
+  EducationalForm,
+  EmployeeDetails,
   EmployeeList,
   FamilyBg,
   ForgotPassword,
   Login,
+  LoyaltyPay,
   NotFound,
+  OrganizationForm,
+  OtherInfo,
   PersonalInfo,
   Promotions,
   SignUp,
   StepIncrement,
+  TrainingProg,
+  WorkExperience,
 } from '~/pages';
 import CustomTheme from '~/theme';
 import { IPage } from '~/types';
@@ -58,17 +62,13 @@ const Pages: IPage[] = [
   {
     path: '/promotions',
     Component: Promotions,
-    requireAuth: true,
+    requireAuth: false,
     requireAdmin: false,
   },
   {
     path: '/loyalty-pay',
-    Component: () => (
-      <UserWrapper hasContainer>
-        <h1>Loyalty Pay</h1>
-      </UserWrapper>
-    ),
-    requireAuth: true,
+    Component: LoyaltyPay,
+    requireAuth: false,
     requireAdmin: false,
   },
   { path: '*', Component: NotFound, requireAuth: false, requireAdmin: false },
@@ -78,6 +78,7 @@ const Pages: IPage[] = [
     requireAuth: false,
     requireAdmin: false,
   },
+
   {
     path: '/family-bg',
     Component: FamilyBg,
@@ -85,30 +86,58 @@ const Pages: IPage[] = [
     requireAdmin: false,
   },
   {
-    path: '/education-form',
-    Component: EducationForm,
+    path: '/educational-form',
+    Component: EducationalForm,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/civil-service',
+    Component: CivilService,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/work-experience',
+    Component: WorkExperience,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/organization-form',
+    Component: OrganizationForm,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/training-prog',
+    Component: TrainingProg,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/other-info',
+    Component: OtherInfo,
+    requireAuth: false,
+    requireAdmin: false,
+  },
+  {
+    path: '/employee-details',
+    Component: EmployeeDetails,
     requireAuth: false,
     requireAdmin: false,
   },
 ];
 
-// const useStyles = makeStyles((theme: Theme) => ({
-//   root: {
-//     background: (props: any) => props.palette.background.default,
-//   },
-// }));
-
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(
-    true
-    // localStorage.getItem("darkMode") === null
-    //   ? true
-    //   : localStorage.getItem("darkMode") === "true"
-    //   ? true
-    //   : false
+    localStorage.getItem('darkMode') === null
+      ? true
+      : localStorage.getItem('darkMode') === 'true'
+      ? true
+      : false
   );
-  // const classes = useStyles(theme as Theme);
-  // TODO - Refactor?
+
   const clientId =
     (import.meta as any).env.VITE_APP_PAYPAL_CLIENT_ID ||
     'AXv0bXQgDlWJJvvsO_7aBxSlwoByie-N9ROT2qtLE9eBeDKZRxuC4C5uSRXh2xDDoAktahoUTGexmPqC';
