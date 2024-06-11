@@ -2,8 +2,20 @@
 import { FC } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Divider, Paper, TextField, Typography } from '@mui/material';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import {
+  Autocomplete,
+  Button,
+  Divider,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
+import {
+  Controller,
+  FormProvider,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form';
 import { z } from 'zod';
 
 import { IEmployee } from '~/types/IEmployee';
@@ -332,6 +344,34 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
     },
   ];
 
+  const renderAutocompleteField = (field: string, label: string) => (
+    <Controller
+      key={field}
+      name={field}
+      control={control}
+      render={({ field: { onChange, value } }) => (
+        <Autocomplete
+          multiple
+          options={[]}
+          freeSolo
+          value={value || []}
+          onChange={(event, newValue) => {
+            onChange(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={label}
+              variant='outlined'
+              margin='normal'
+              fullWidth
+            />
+          )}
+        />
+      )}
+    />
+  );
+
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -343,25 +383,44 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
             <div key={section.title}>
               <Typography variant='h6'>{section.title}</Typography>
               <Divider />
-              {section.fields.map((field) => (
-                <Controller
-                  key={field}
-                  name={field as keyof IEmployee}
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      {...field}
-                      label={field.name}
-                      error={!!fieldState.error}
-                      helperText={
-                        fieldState.error ? fieldState.error.message : null
-                      }
-                      fullWidth
-                      margin='normal'
+              {section.fields.map((field) => {
+                if (field.startsWith('employeeRecord')) {
+                  return renderAutocompleteField(
+                    field,
+                    field.split('.').pop() || ''
+                  );
+                } else if (field.startsWith('trainingProg')) {
+                  return renderAutocompleteField(
+                    field,
+                    field.split('.').pop() || ''
+                  );
+                } else if (field.startsWith('otherInfo')) {
+                  return renderAutocompleteField(
+                    field,
+                    field.split('.').pop() || ''
+                  );
+                } else {
+                  return (
+                    <Controller
+                      key={field}
+                      name={field as keyof IEmployee}
+                      control={control}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          {...field}
+                          label={field.name}
+                          error={!!fieldState.error}
+                          helperText={
+                            fieldState.error ? fieldState.error.message : null
+                          }
+                          fullWidth
+                          margin='normal'
+                        />
+                      )}
                     />
-                  )}
-                />
-              ))}
+                  );
+                }
+              })}
             </div>
           ))}
           <Button
