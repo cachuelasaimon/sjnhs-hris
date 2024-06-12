@@ -19,15 +19,15 @@ import {
   useTheme,
 } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
-import { formatDistance, parseISO } from 'date-fns';
+import { format, formatDistance, parseISO } from 'date-fns';
 import { Field, Form, Formik } from 'formik';
 import { Select, TextField } from 'formik-mui';
 
 import { MOCK_EMPLOYEES } from '~/assets';
 import { IEmployee, IEndorsement } from '~/types';
 import {
-  Add,
   SALARY_GRADE,
+  Set,
   collections,
   formatCurrency,
   getLatestEntry,
@@ -36,10 +36,11 @@ import {
   useQuickNotif,
 } from '~/utils';
 
-interface ConfirmEndorsementModalProps {
+interface ApprovePromotionModalProps {
   open: boolean;
   onClose: () => void;
   employee: IEmployee;
+  endorsement: IEndorsement;
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -55,13 +56,15 @@ const Transition = React.forwardRef(function Transition(
  * Description
  * ----------
  * This component should allow the admin to:
- * 1. View the employee's details
- * 2. Confirm the endorsement
+ * 1. View the employee's information
+ * 2. Approve or reject the endorsement
+ * 3. If approved, the employee's salary grade should be updated in the employee information collection and the endorsement status will be marked as approved
  */
-const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
+const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
   open,
   onClose,
   employee,
+  endorsement,
 }) => {
   const notif = useQuickNotif();
   const latestEmployeeRecord = getLatestEntry({
@@ -82,26 +85,94 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
   }, []);
 
   // TODO: handle endorsement submit
-  const handleEndorsementSubmit = async (values: IEndorsement) => {
+  const handleEndorsementApprovalSubmit = async (values: IEndorsement) => {
     try {
-      // TODO: Submit endorsement (setDoc)
-      await Add<IEndorsement>({
-        collectionRef: collections.endorsements.string,
+      // TODO: Update Endorsement Document
+      /**
+       * 1. Update the status to 'approved'
+       * 2. Update the approvedDate to currentDate
+       */
+      // NOTE uncomment the line below to see the endorsement object and the 'doc' property which should not be included in the PUT request (according to firebase API)
+      // console.log({endorsement});
+      // @ts-ignore - doc is not part of the IEndorsement interface (yet)
+      const { doc: _endorsementDoc, ...endorsementDetails } = endorsement;
+      await Set<IEndorsement>({
         data: {
-          employeeId: employee.employeeId,
-          status: values.status,
-          endorser: {
-            id: user?.uid || '',
-            email: user?.email || '',
-          },
-          salaryGrade: values.salaryGrade,
-          monthlySalary: values.monthlySalary,
+          ...endorsementDetails,
+          status: 'approved',
+          approvedDate: format(new Date(), 'yyyy-MM-dd'),
         },
+        docRef: `${collections.endorsements.string}/${endorsement.id}`,
       });
-      notif('Endorsement Submitted', 'success', 2000);
+      // TODO: Update Employee Document
+      /**
+       * 1. Create a new entry in the employee record array
+       *  - new salaryGrade
+       *  - new monthlySalary
+       *  - new startDate to currentDate
+       *  - append endDate to the previous entry
+       */
+      const {
+        doc: _employeeDoc,
+        endorsement: _endorsement,
+        ...employeeDetails
+      } = employee as IEmployee & { endorsement: IEndorsement };
+
+      await Set<IEmployee>({
+        data: {
+          ...employeeDetails,
+          employeeRecord: [
+            {
+              ...latestEmployeeRecord,
+              startDate: format(new Date(), 'yyyy-MM-dd'),
+              salaryGrade: values.salaryGrade,
+              monthlySalary: values.monthlySalary,
+            },
+            {
+              ...latestEmployeeRecord,
+              endDate: format(new Date(), 'yyyy-MM-dd'),
+            },
+            // sort the employeeRecords' by latest startDate and remove first item
+            ...employeeDetails.employeeRecord
+              .sort(
+                (a, b) =>
+                  new Date(b.startDate).getTime() -
+                  new Date(a.startDate).getTime()
+              )
+              .slice(1),
+          ],
+        },
+        docRef: `${collections.employees.string}/${employee.id}`,
+      });
+      // TODO: Submit endorsement (setDoc)
+      notif('Endorsement status updated - Approved', 'success');
+
       onClose();
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleDeclineEndorsement = async () => {
+    try {
+      // NOTE uncomment the line below to see the endorsement object and the 'doc' property which should not be included in the PUT request (according to firebase API)
+      // console.log({endorsement});
+      // @ts-ignore - doc is not part of the IEndorsement interface (yet)
+      const { doc, ...rest } = endorsement;
+      await Set<IEndorsement>({
+        data: {
+          ...rest,
+          status: 'declined',
+          declinedBy: { email: user?.email || '', id: user?.uid || '' },
+        },
+        docRef: `${collections.endorsements.string}/${endorsement.id}`,
+      });
+      notif('Endorsement status updated - Declined', 'success');
+      onClose();
+    } catch (error) {
+      console.error(error);
+
+      notif('Something went wrong', 'error');
     }
   };
 
@@ -130,7 +201,7 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
     >
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant='h5'>Confirm Endorsement</Typography>
+          <Typography variant='h5'>Review Promotion</Typography>
           <IconButton size='large' onClick={onClose}>
             <ExpandMoreIcon />
           </IconButton>
@@ -309,28 +380,16 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
         {/* // TODO: Endorsement Form*/}
         <Paper sx={{ p: 3 }}>
           <Typography variant='h6' sx={{ mb: 2 }}>
-            Endorsement Form
+            Promotion Details
           </Typography>
           {/* // ** Fields */}
           <Formik
             initialValues={
               {
-                status: 'pending',
-                employeeId: employee.id,
-                salaryGrade: latestEmployeeRecord.salaryGrade,
-                monthlySalary: formatCurrency(
-                  SALARY_GRADE[
-                    Number(latestEmployeeRecord?.salaryGrade.split('-')[0]) -
-                      1 || 0
-                  ][
-                    Number(
-                      latestEmployeeRecord?.salaryGrade.split('-')[1] || 1
-                    ) - 1 || 0
-                  ]
-                ),
+                ...endorsement,
               } as any
             }
-            onSubmit={handleEndorsementSubmit}
+            onSubmit={handleEndorsementApprovalSubmit}
           >
             {({ setFieldValue, handleChange }) => (
               <Form>
@@ -342,6 +401,7 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
                       name='salaryGrade'
                       label='Salary Grade'
                       formControl={{ fullWidth: true }}
+                      disabled={true}
                       onChange={(params: any) => {
                         handleChange(params);
                         setFieldValue(
@@ -356,26 +416,11 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
                         );
                       }}
                     >
-                      {salaryGradeOptions
-                        .filter((option) => {
-                          return (
-                            new Intl.Collator('en', { numeric: true }).compare(
-                              option.value,
-                              latestEmployeeRecord.salaryGrade
-                            ) >= 0
-                          );
-                        })
-                        .map(({ value, label }, idx) => (
-                          <MenuItem
-                            key={idx}
-                            value={value}
-                            disabled={
-                              value === latestEmployeeRecord.salaryGrade
-                            }
-                          >
-                            {label}
-                          </MenuItem>
-                        ))}
+                      {salaryGradeOptions.map(({ value, label }, idx) => (
+                        <MenuItem key={idx} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
                     </Field>
                   </Grid>
 
@@ -392,9 +437,18 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
                 </Grid>
 
                 {/* // TODO: Submit button */}
-                <Button variant='contained' type='submit'>
-                  Submit Endorsement
-                </Button>
+                <Stack direction={'row'} spacing={3}>
+                  <Button variant='contained' type='submit'>
+                    Approve Promotion
+                  </Button>
+                  <Button
+                    variant='contained'
+                    color='error'
+                    onClick={handleDeclineEndorsement}
+                  >
+                    Decline Promotion
+                  </Button>
+                </Stack>
               </Form>
             )}
           </Formik>
@@ -410,4 +464,4 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
   );
 };
 
-export default ConfirmEndorsementModal;
+export default ReviewPromotionModal;

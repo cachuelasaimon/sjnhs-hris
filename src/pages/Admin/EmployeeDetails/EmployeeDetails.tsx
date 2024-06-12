@@ -30,13 +30,15 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
     setFormState(employee);
   }, [employee]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormState({ ...formState, [name]: value });
   };
 
   const handleNestedInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     nestedField: string
   ) => {
     const { name, value } = e.target;
@@ -44,6 +46,23 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
       ...formState,
       [nestedField]: { ...formState[nestedField], [name]: value },
     });
+  };
+
+  const handleArrayInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    arrayField: string,
+    index: number,
+    nestedField?: string
+  ) => {
+    const { name, value } = e.target;
+    const updatedArray = formState[arrayField].map((item, i) =>
+      i === index
+        ? nestedField
+          ? { ...item, [nestedField]: { ...item[nestedField], [name]: value } }
+          : { ...item, [name]: value }
+        : item
+    );
+    setFormState({ ...formState, [arrayField]: updatedArray });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,12 +73,13 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
   return (
     <Box component='form' onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Grid container spacing={2}>
+        {/* Personal Information */}
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label='First Name'
-            name='firstName'
-            value={formState.firstName || ''}
+            label='Last Name'
+            name='lastName'
+            value={formState.lastName || ''}
             onChange={handleInputChange}
             required
           />
@@ -67,9 +87,9 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label='Last Name'
-            name='lastName'
-            value={formState.lastName || ''}
+            label='First Name'
+            name='firstName'
+            value={formState.firstName || ''}
             onChange={handleInputChange}
             required
           />
@@ -215,8 +235,8 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
           <TextField
             fullWidth
             label='Citizenship'
-            name='citizenShip'
-            value={formState.citizenShip || ''}
+            name='citizenship'
+            value={formState.citizenship || ''}
             onChange={handleInputChange}
           />
         </Grid>
@@ -238,6 +258,8 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
             onChange={handleInputChange}
           />
         </Grid>
+
+        {/* Contact Information */}
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
@@ -265,24 +287,39 @@ const EmployeeDetails: FC<EmployeeDetailsProps> = ({
             onChange={(e) => handleNestedInputChange(e, 'contact')}
           />
         </Grid>
-        {/* Add more fields as needed */}
-      </Grid>
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <Button type='submit' variant='contained' color='primary'>
-            Save
+
+        {/* Identification */}
+        {formState.license?.map(
+          (license: { license: any }, index: React.Key | null | undefined) => (
+            <Grid item xs={12} sm={6} key={index}>
+              <TextField
+                fullWidth
+                label={`License ${index + 1}`}
+                name='license'
+                value={license?.license || ''}
+                onChange={(e) => handleArrayInputChange(e, 'licenses', index)}
+              />
+            </Grid>
+          )
+        )}
+
+        <Grid item xs={12}>
+          <Button
+            type='submit'
+            fullWidth
+            variant='contained'
+            color='primary'
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Save'}
           </Button>
-        </Box>
-      )}
-      {error && (
-        <Typography color='error' sx={{ mt: 2 }}>
-          {error}
-        </Typography>
-      )}
+          {error && (
+            <Typography color='error' sx={{ mt: 2 }}>
+              {error}
+            </Typography>
+          )}
+        </Grid>
+      </Grid>
     </Box>
   );
 };

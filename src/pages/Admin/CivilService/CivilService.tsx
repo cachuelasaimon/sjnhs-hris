@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Autocomplete,
+  Box,
   Button,
   Divider,
+  Grid,
   Paper,
   TextField,
   Typography,
@@ -35,11 +36,13 @@ const employeeSchema = z.object({
   nameExtension: z.string().optional(),
   birthDay: z.string().optional(),
   birthPlace: z.string().optional(),
-  gender: z.string().optional(),
-  civilStatus: z.string().optional(),
+  gender: z.enum(['Male', 'Female', 'Other']).optional(),
+  civilStatus: z.enum(['Single', 'Married', 'Widowed']).optional(),
   height: z.string().optional(),
   weight: z.string().optional(),
-  bloodType: z.string().optional(),
+  bloodType: z
+    .enum(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'])
+    .optional(),
   gsisId: z.string().optional(),
   pagibigNumber: z.string().optional(),
   philhealthNumber: z.string().optional(),
@@ -154,8 +157,8 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
       nameExtension: '',
       birthDay: '',
       birthPlace: '',
-      gender: '',
-      civilStatus: '',
+      gender: undefined,
+      civilStatus: undefined,
       height: '',
       weight: '',
       bloodType: '',
@@ -165,7 +168,7 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
       sssNo: '',
       tinNo: '',
       agencyEmployeeNumber: '',
-      citizenShip: '',
+      citizenship: '',
       residentialAddress: '',
       permanentAddress: '',
       contact: {
@@ -212,6 +215,11 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
 
   const { handleSubmit, control, formState } = formMethods;
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'employeeRecord',
+  });
+
   const onSubmit = async (values: IEmployee) => {
     console.log('Form Values:', values); // Debugging log
     try {
@@ -225,6 +233,52 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
       alert('Failed to save data');
     }
   };
+
+  const renderField = (field: string, label: string) => (
+    <Controller
+      key={field}
+      name={field}
+      control={control}
+      render={({ field, fieldState }) => (
+        <TextField
+          {...field}
+          label={label}
+          error={!!fieldState.error}
+          helperText={fieldState.error ? fieldState.error.message : null}
+          fullWidth
+          margin='normal'
+        />
+      )}
+    />
+  );
+
+  const renderAutocompleteField = (field: string, label: string) => (
+    <Controller
+      key={field}
+      name={field}
+      control={control}
+      render={({ field: { onChange, value } }) => (
+        <Autocomplete
+          multiple
+          options={[]}
+          freeSolo
+          value={value || []}
+          onChange={(event, newValue) => {
+            onChange(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={label}
+              variant='outlined'
+              margin='normal'
+              fullWidth
+            />
+          )}
+        />
+      )}
+    />
+  );
 
   const sections = [
     {
@@ -344,38 +398,10 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
     },
   ];
 
-  const renderAutocompleteField = (field: string, label: string) => (
-    <Controller
-      key={field}
-      name={field}
-      control={control}
-      render={({ field: { onChange, value } }) => (
-        <Autocomplete
-          multiple
-          options={[]}
-          freeSolo
-          value={value || []}
-          onChange={(event, newValue) => {
-            onChange(newValue);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label={label}
-              variant='outlined'
-              margin='normal'
-              fullWidth
-            />
-          )}
-        />
-      )}
-    />
-  );
-
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Paper>
+        <Paper sx={{ p: 3 }}>
           <Typography variant='h4' gutterBottom>
             Employee Information Form
           </Typography>
@@ -384,53 +410,87 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
               <Typography variant='h6'>{section.title}</Typography>
               <Divider />
               {section.fields.map((field) => {
-                if (field.startsWith('employeeRecord')) {
-                  return renderAutocompleteField(
-                    field,
-                    field.split('.').pop() || ''
-                  );
-                } else if (field.startsWith('trainingProg')) {
-                  return renderAutocompleteField(
-                    field,
-                    field.split('.').pop() || ''
-                  );
-                } else if (field.startsWith('otherInfo')) {
+                if (
+                  field.includes('Record') ||
+                  field.includes('Prog') ||
+                  field.includes('Info')
+                ) {
                   return renderAutocompleteField(
                     field,
                     field.split('.').pop() || ''
                   );
                 } else {
-                  return (
-                    <Controller
-                      key={field}
-                      name={field as keyof IEmployee}
-                      control={control}
-                      render={({ field, fieldState }) => (
-                        <TextField
-                          {...field}
-                          label={field.name}
-                          error={!!fieldState.error}
-                          helperText={
-                            fieldState.error ? fieldState.error.message : null
-                          }
-                          fullWidth
-                          margin='normal'
-                        />
-                      )}
-                    />
-                  );
+                  return renderField(field, field.split('.').pop() || '');
                 }
               })}
+              {section.title === 'Work Experience' && (
+                <>
+                  {fields.map((item, index) => (
+                    <Box key={item.id} mb={2}>
+                      <Grid container spacing={2} alignItems='center'>
+                        <Grid item xs={12} sm={10}>
+                          <Typography variant='h6'>
+                            Work Experience {index + 1}
+                          </Typography>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={12}
+                          sm={2}
+                          display='flex'
+                          justifyContent='flex-end'
+                        >
+                          <Button
+                            variant='contained'
+                            color='secondary'
+                            onClick={() => remove(index)}
+                          >
+                            Remove
+                          </Button>
+                        </Grid>
+                      </Grid>
+                      <Divider />
+                      {Object.keys(item).map((key) => (
+                        <Grid key={key} item xs={12}>
+                          {renderField(`employeeRecord.${index}.${key}`, key)}
+                        </Grid>
+                      ))}
+                    </Box>
+                  ))}
+                  <Box display='flex' justifyContent='flex-end' mb={2}>
+                    <Button
+                      variant='contained'
+                      color='primary'
+                      onClick={() =>
+                        append({
+                          startDate: '',
+                          endDate: '',
+                          position: '',
+                          department: '',
+                          monthlySalary: '',
+                          salaryGrade: '',
+                          appointmentStatus: '',
+                          govtService: '',
+                        })
+                      }
+                    >
+                      Add Work Experience
+                    </Button>
+                  </Box>
+                </>
+              )}
             </div>
           ))}
-          <Button
-            type='submit'
-            variant='contained'
-            color='primary'
-            disabled={formState.isSubmitting}
-          >
-            {formState.isSubmitting ? 'Submitting...' : 'Save'}
-          </Button>
+          <Box display='flex' justifyContent='flex-end'>
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              disabled={formState.isSubmitting}
+            >
+              {formState.isSubmitting ? 'Submitting...' : 'Save'}
+            </Button>
+          </Box>
         </Paper>
       </form>
     </FormProvider>

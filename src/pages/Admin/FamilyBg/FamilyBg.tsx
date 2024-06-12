@@ -1,360 +1,196 @@
-import * as React from 'react';
+import React from 'react';
 
-import {
-  Button,
-  Grid,
-  InputAdornment,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { Form, Formik } from 'formik';
-import { AccountCircle } from 'mdi-material-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AccountCircle } from '@mui/icons-material';
+import { Button, Grid, Typography } from '@mui/material';
+import { FormProvider, TextFieldElement, useForm } from 'react-hook-form-mui';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
-const FamilyBg = () => (
-  <Formik
-    initialValues={{
-      surName: '', // SPOUSE'S SURNAME
-      firstName: '', // FIRST NAME of CHILDREN (Write full name and list all)
-      middleName: '', // DATE OF BIRTH (mm/dd/yyyy)
-      nameExtension: '',
+import { Add, collections } from '~/utils';
 
-      birthBlace: '', // Place of Birth
-      height: '', // OCCUPATION
-      weight: '', // EMPLOYER/BUSINESS NAME
-      bloodType: '', // BUSINESS ADDRESS
+// Define the Zod schema for family background form validation
+const familyBgSchema = z.object({
+  spouseSurname: z.string().optional(),
+  childrenNames: z.string().optional(),
+  birthDate: z.string().optional(),
+  spouseFirstName: z.string().optional(),
+  spouseMiddleName: z.string().optional(),
+  occupation: z.string().optional(),
+  employerName: z.string().optional(),
+  businessAddress: z.string().optional(),
+  telephoneNo: z.string().optional(),
+  fatherSurname: z.string().optional(),
+  fatherFirstName: z.string().optional(),
+  fatherMiddleName: z.string().optional(),
+});
 
-      gsisID: '', // TELEPHONE NO.
-      pagibigId: '', // FATHER'S SURNAME
-      philHealth: '', // FIRST NAME
-      sssNo: '', // NAME EXTENSION (JR., SR)
-      tinNo: '', // MIDDLE NAME
-      employeeNo: '', // MOTHER'S MAIDEN NAME
-      residentialAdd: '', // SURNAME
-      permanentAdd: '', // FIRST NAME
-      telephoneNo: '', // MIDDLE NAME
-      mobileNo: '', // (Continue on separate sheet if necessary)
+const FamilyBg: React.FC = () => {
+  const navigate = useNavigate();
 
-      emailAdd: '', // E-MAIL ADDRESS(if-any)
-    }}
-    onSubmit={(values) => {
-      console.log(values);
-    }}
-  >
-    <Form>
-      <Typography variant='h4' gutterBottom>
-        FAMILY BACKGROUND
-      </Typography>
+  const formMethods = useForm({
+    resolver: zodResolver(familyBgSchema),
+    defaultValues: {
+      spouseSurname: '',
+      childrenNames: '',
+      birthDate: '',
+      spouseFirstName: '',
+      spouseMiddleName: '',
+      occupation: '',
+      employerName: '',
+      businessAddress: '',
+      telephoneNo: '',
+      fatherSurname: '',
+      fatherFirstName: '',
+      fatherMiddleName: '',
+    },
+  });
 
-      <Grid container spacing={1}>
-        <Grid item xs={4} sm={6}>
-          <TextField
-            name='surName'
-            label='SPOUSE SURNAME'
-            variant='outlined'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AccountCircle />
-                </InputAdornment>
-              ),
-            }}
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
+  const { handleSubmit, reset } = formMethods;
 
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='firstName'
-            label='FIRST NAME of CHILDREN (Write full name and list all)'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
+  // Handle form submission
+  const onSubmit = async (values: any) => {
+    try {
+      await Add({
+        collectionRef: collections.employees.string,
+        data: values,
+      });
+      console.log('Saved values:', values);
+      navigate('/educational-form');
+    } catch (error) {
+      console.error('Error saving family background info:', error);
+      alert('Failed to save family background info');
+    }
+  };
 
-        <Grid item xs={10} sm={2}>
-          <TextField
-            name='birthDate'
-            label='Date of Birth'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
+  // Handle form reset
+  const handleClear = () => {
+    reset({});
+  };
 
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='firstName'
-            label='FIRST NAME'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
+  return (
+    <FormProvider {...formMethods}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Typography variant='h4' gutterBottom>
+          FAMILY BACKGROUND
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='spouseSurname'
+              label='Spouse Surname'
+              variant='outlined'
+              fullWidth
+              InputProps={{
+                startAdornment: <AccountCircle />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='childrenNames'
+              label='Children Names (Full Name, List All)'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='birthDate'
+              label='Date of Birth'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='spouseFirstName'
+              label='Spouse First Name'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='spouseMiddleName'
+              label='Spouse Middle Name'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='occupation'
+              label='Occupation'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='employerName'
+              label='Employer/Business Name'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='businessAddress'
+              label='Business Address'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='telephoneNo'
+              label='Telephone No.'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='fatherSurname'
+              label='Father Surname'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='fatherFirstName'
+              label='Father First Name'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextFieldElement
+              name='fatherMiddleName'
+              label='Father Middle Name'
+              variant='outlined'
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button type='submit' variant='contained' color='primary'>
+              Save
+            </Button>
+            <Button
+              onClick={handleClear}
+              variant='contained'
+              color='secondary'
+              style={{ marginLeft: '10px' }}
+            >
+              Clear
+            </Button>
+          </Grid>
         </Grid>
-
-        <Grid item xs={12} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='middleName'
-            label='MIDDLE NAME'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='occupation'
-            label='OCCUPATION'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='businessName'
-            label='EMPLOYER/BUSINESS NAME'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='businessAdd'
-            label='BUSINESS ADDRESS'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='telephoneNo'
-            label='TELEPHONE NO.'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={4} sm={6}>
-          <TextField
-            name='surName'
-            label='FATHER SURNAME'
-            variant='outlined'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AccountCircle />
-                </InputAdornment>
-              ),
-            }}
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='firstName'
-            label='FIRST NAME'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={6} sm={6}>
-          <TextField
-            name='middleName'
-            label='MIDDLE NAME'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={4} sm={4}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-        <Grid item xs={2} sm={2}>
-          <TextField
-            name='addValue'
-            label=''
-            variant='outlined'
-            fullWidth
-            margin='normal'
-          />
-        </Grid>
-      </Grid>
-
-      <Button type='submit' variant='contained' color='primary'>
-        Submit
-      </Button>
-    </Form>
-  </Formik>
-);
+      </form>
+    </FormProvider>
+  );
+};
 
 export default FamilyBg;

@@ -188,7 +188,11 @@ export default function TemporaryDrawer({
                 </Button>
               </Toolbar>
             </AppBar>
-            {hasContainer ? <Container>{children}</Container> : children}
+            {hasContainer ? (
+              <Container maxWidth='xl'>{children}</Container>
+            ) : (
+              children
+            )}
           </Box>
 
           <Drawer
