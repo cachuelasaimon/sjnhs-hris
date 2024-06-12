@@ -12,6 +12,8 @@ export * from './IOrder';
 export * from './ICompanyInformation';
 export * from './IEndorsement';
 export * from './IEmployee';
+export * from './ILoyaltyPay';
+export * from './IPromotion';
 
 // Page Props
 export * from './pageInterfaces';

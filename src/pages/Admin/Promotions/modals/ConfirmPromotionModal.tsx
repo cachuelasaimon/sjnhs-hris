@@ -36,7 +36,7 @@ import {
   useQuickNotif,
 } from '~/utils';
 
-interface ConfirmEndorsementModalProps {
+interface ConfirmPromotionModalProps {
   open: boolean;
   onClose: () => void;
   employee: IEmployee;
@@ -58,7 +58,7 @@ const Transition = React.forwardRef(function Transition(
  * 1. View the employee's details
  * 2. Confirm the endorsement
  */
-const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
+const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
   open,
   onClose,
   employee,
@@ -130,7 +130,7 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
     >
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant='h5'>Confirm Endorsement</Typography>
+          <Typography variant='h5'>Confirm Promotion</Typography>
           <IconButton size='large' onClick={onClose}>
             <ExpandMoreIcon />
           </IconButton>
@@ -356,26 +356,11 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
                         );
                       }}
                     >
-                      {salaryGradeOptions
-                        .filter((option) => {
-                          return (
-                            new Intl.Collator('en', { numeric: true }).compare(
-                              option.value,
-                              latestEmployeeRecord.salaryGrade
-                            ) >= 0
-                          );
-                        })
-                        .map(({ value, label }, idx) => (
-                          <MenuItem
-                            key={idx}
-                            value={value}
-                            disabled={
-                              value === latestEmployeeRecord.salaryGrade
-                            }
-                          >
-                            {label}
-                          </MenuItem>
-                        ))}
+                      {salaryGradeOptions.map(({ value, label }, idx) => (
+                        <MenuItem key={idx} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
                     </Field>
                   </Grid>
 
@@ -410,4 +395,4 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
   );
 };
 
-export default ConfirmEndorsementModal;
+export default ConfirmPromotionModal;

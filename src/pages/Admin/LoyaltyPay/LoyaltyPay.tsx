@@ -4,11 +4,10 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Button, Paper, Tab, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-import { ConfirmEndorsementModal, ReviewEndorsementModal } from './modals';
+import { ConfirmLoyaltyPayModal, ReviewLoyaltyPayModal } from './modals';
 
-import { MOCK_EMPLOYEES } from '~/assets';
 import { UserWrapper } from '~/components';
-import { IEmployee, IEndorsement } from '~/types';
+import { IEmployee, ILoyaltyPay } from '~/types';
 import {
   collections,
   createGroupedHashMap,
@@ -17,41 +16,44 @@ import {
   useListen,
 } from '~/utils';
 
-const StepIncrement: FC = () => {
+// Define the IWorkExperience type
+interface IWorkExperience {
+  startDate: string; // or Date if you are dealing with Date objects
+  endDate?: string; // optional end date
+}
+
+const LoyaltyPayIncentive: FC = () => {
   // ** Modal Handling
   const [openModal, setOpenModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(
     null
   );
-  const [selectedEndorsement, setSelectedEndorsement] =
-    useState<IEndorsement | null>(null);
+  const [selectedLoyaltyPay, setSelectedLoyaltyPay] =
+    useState<ILoyaltyPay | null>(null);
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  // TODO: Fetch Employees & Endorsements
+  // Fetch Employees & Loyalty Pays
   const { docs: employees, isLoading: employeesLoading } = useListen<IEmployee>(
     {
       collectionRef: collections.employees.ref,
     }
   );
 
-  const { docs: endorsements, isLoading: endorsementsLoading } =
-    useListen<IEndorsement>({
-      collectionRef: collections.endorsements.ref,
+  const { docs: loyaltyPays, isLoading: loyaltyPaysLoading } =
+    useListen<ILoyaltyPay>({
+      collectionRef: collections.loyaltyPays.ref,
     });
 
-  const endorsementsMap = createGroupedHashMap(
-    endorsements || [],
-    'employeeId'
-  );
-  const endorsementsMapByStatus = createGroupedHashMap(
-    endorsements || [],
+  const loyaltyPaysMap = createGroupedHashMap(loyaltyPays || [], 'employeeId');
+  const loyaltyPaysMapByStatus = createGroupedHashMap(
+    loyaltyPays || [],
     'status'
   );
   const employeesMap = createHashMap(employees || [], 'employeeId');
 
-  const isLoading = employeesLoading || endorsementsLoading;
+  const isLoading = employeesLoading || loyaltyPaysLoading;
 
   // ** Tab Handling
   const [activeTab, setActiveTab] = useState<string>('0');
@@ -61,28 +63,28 @@ const StepIncrement: FC = () => {
 
   if (isLoading) return <>Loading...</>;
 
-  const employeesForEndorsement = (employees || []).filter(
+  const employeesForLoyaltyPay = (employees || []).filter(
     (employee) =>
-      endorsementsMap.get(employee.employeeId)?.length === 0 ||
-      !endorsementsMap
+      loyaltyPaysMap.get(employee.employeeId)?.length === 0 ||
+      !loyaltyPaysMap
         .get(employee.employeeId)
-        ?.some((endorsement) => endorsement.status === 'pending')
+        ?.some((loyaltyPay) => loyaltyPay.status === 'pending')
   );
 
-  const employeesWithPendingEndorsement =
-    endorsementsMapByStatus.get('pending')?.map((endorsement) => ({
-      ...employeesMap.get(endorsement.employeeId),
-      endorsement,
+  const employeesWithPendingLoyaltyPay =
+    loyaltyPaysMapByStatus.get('pending')?.map((loyaltyPay) => ({
+      ...employeesMap.get(loyaltyPay.employeeId),
+      loyaltyPay,
     })) || [];
 
   return (
     <UserWrapper hasContainer>
       {/* // ** PAGE TITLE */}
       <Typography variant='h3' gutterBottom>
-        Step Increment
+        Loyalty Pay Incentive
       </Typography>
       <Typography sx={{ mb: 4 }}>
-        Endorse employees that are eligible for salary step increment
+        Reward employees who have shown long service loyalty
       </Typography>
 
       {/* // ** PAGE TABS */}
@@ -91,11 +93,11 @@ const StepIncrement: FC = () => {
           onChange={handleActiveTabChange}
           sx={{ '.MuiTabs-scroller': { overflowX: 'auto !important' } }}
         >
-          <Tab label='For Endorsement' value={'0'} />
+          <Tab label='For Loyalty Pay' value={'0'} />
           <Tab label='Pending Approval' value={'1'} />
         </TabList>
         <TabPanel value={'0'}>
-          {employeesForEndorsement.length > 0 ? (
+          {employeesForLoyaltyPay.length > 0 ? (
             <Paper sx={{ p: 2 }}>
               <DataGrid
                 checkboxSelection={false}
@@ -120,54 +122,64 @@ const StepIncrement: FC = () => {
                   },
                   { field: 'tinNo', headerName: 'TIN Number', width: 180 },
                   { field: 'prcNo', headerName: 'PRC Pin', width: 180 },
-                  {
-                    field: 'salaryGrade',
-                    headerName: 'Salary Grade',
-                    width: 180,
-                    valueGetter: (params: any) => {
-                      const employeeRecord = getLatestEntry({
-                        arr: params.row
-                          .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                        referenceKey: 'startDate',
-                      });
-                      return employeeRecord.salaryGrade;
-                    },
-                  },
+                  // {
+                  //   field: 'yearsOfService',
+                  //   headerName: 'Years of Service',
+                  //   width: 180,
+                  //   valueGetter: (params: any) => {
+                  //     const employeeRecord = params.row.employeeRecord as
+                  //       | IWorkExperience[]
+                  //       | undefined;
+                  //     if (!employeeRecord) return ''; // or some default value
+                  //     const latestEntry = getLatestEntry({
+                  //       arr: employeeRecord,
+                  //       referenceKey: 'startDate',
+                  //     });
+                  //     const startDate = new Date(latestEntry.startDate);
+                  //     const currentDate = new Date();
+                  //     return (
+                  //       currentDate.getFullYear() - startDate.getFullYear()
+                  //     );
+                  //   },
+                  // },
                   {
                     field: '',
-                    headerName: 'Endorse',
+                    headerName: 'Reward',
                     renderCell: (params: any) => (
                       <Button
                         onClick={() => {
                           setSelectedEmployee(params.row);
+                          console.log(params.row);
+                          setSelectedLoyaltyPay('P 10,000.00');
                           handleOpenModal();
                         }}
                         variant='contained'
                       >
-                        Endorse
+                        Reward
                       </Button>
                     ),
                   },
                 ]}
-                rows={employeesForEndorsement}
+                rows={employeesForLoyaltyPay}
               />
             </Paper>
           ) : (
             <Paper sx={{ p: 3, textAlign: 'center' }}>
-              No Employees Eligible for Endorsement
+              No Employees Eligible for Loyalty Pay
             </Paper>
           )}
 
           {selectedEmployee && (
-            <ConfirmEndorsementModal
+            <ConfirmLoyaltyPayModal
               open={openModal}
               onClose={handleCloseModal}
               employee={selectedEmployee}
+              loyaltyPay={selectedLoyaltyPay}
             />
           )}
         </TabPanel>
         <TabPanel value={'1'}>
-          {employeesWithPendingEndorsement.length > 0 ? (
+          {employeesWithPendingLoyaltyPay.length > 0 ? (
             <Paper sx={{ p: 2 }}>
               <DataGrid
                 checkboxSelection={false}
@@ -193,53 +205,60 @@ const StepIncrement: FC = () => {
                   { field: 'tinNo', headerName: 'TIN Number', width: 180 },
                   { field: 'prcNo', headerName: 'PRC Pin', width: 180 },
                   {
-                    field: 'salaryGrade',
-                    headerName: 'Salary Grade',
+                    field: 'yearsOfService',
+                    headerName: 'Years of Service',
                     width: 180,
                     valueGetter: (params: any) => {
-                      const employeeRecord = getLatestEntry({
-                        arr: params.row
-                          .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
+                      const employeeRecord = params.row.employeeRecord as
+                        | IWorkExperience[]
+                        | undefined;
+                      if (!employeeRecord) return ''; // or some default value
+                      const latestEntry = getLatestEntry({
+                        arr: employeeRecord,
                         referenceKey: 'startDate',
                       });
-                      return employeeRecord.salaryGrade;
+                      const startDate = new Date(latestEntry.startDate);
+                      const currentDate = new Date();
+                      return (
+                        currentDate.getFullYear() - startDate.getFullYear()
+                      );
                     },
                   },
                   {
                     field: '',
-                    headerName: 'Endorse',
+                    headerName: 'Review',
                     width: 250,
                     renderCell: (params: any) => (
                       <Button
                         onClick={() => {
                           setSelectedEmployee(params.row);
-                          setSelectedEndorsement(
-                            params.row.endorsement as IEndorsement
+                          setSelectedLoyaltyPay(
+                            params.row.loyaltyPay as ILoyaltyPay
                           );
                           handleOpenModal();
                         }}
                         variant='contained'
                       >
-                        Review Endorsement
+                        Review
                       </Button>
                     ),
                   },
                 ]}
-                rows={employeesWithPendingEndorsement}
+                rows={employeesWithPendingLoyaltyPay}
               />
             </Paper>
           ) : (
             <Paper sx={{ p: 3, textAlign: 'center' }}>
-              No Pending Endorsements
+              No Pending Loyalty Pay
             </Paper>
           )}
 
-          {selectedEmployee && selectedEndorsement && (
-            <ReviewEndorsementModal
+          {selectedEmployee && selectedLoyaltyPay && (
+            <ReviewLoyaltyPayModal
               open={openModal}
               onClose={handleCloseModal}
               employee={selectedEmployee}
-              endorsement={selectedEndorsement}
+              loyaltyPay={selectedLoyaltyPay}
             />
           )}
         </TabPanel>
@@ -248,4 +267,4 @@ const StepIncrement: FC = () => {
   );
 };
 
-export default StepIncrement;
+export default LoyaltyPayIncentive;

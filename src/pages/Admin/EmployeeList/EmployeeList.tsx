@@ -1,20 +1,27 @@
 import React, { FC, useEffect, useState } from 'react';
 
-import { TabContext, TabList, TabPanel } from '@mui/lab';
 import {
-  Box,
   Button,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Menu,
+  MenuItem,
   Paper,
-  Tab,
+  Stack,
   Typography,
 } from '@mui/material';
+// eslint-disable-next-line import/named
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 
 import UserWrapper from '~/components/UserWrapper';
 import CivilService from '~/pages/Admin/CivilService/CivilService';
@@ -29,10 +36,11 @@ const EmployeeList: FC = () => {
   );
   const [employeeLoading, setEmployeeLoading] = useState(false);
   const [employeeError, setEmployeeError] = useState('');
-  const [activeTab, setActiveTab] = useState('0');
   const [employees, setEmployees] = useState<IEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuEmployee, setMenuEmployee] = useState<IEmployee | null>(null);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -91,11 +99,49 @@ const EmployeeList: FC = () => {
     }
   };
 
-  const handleActiveTabChange = (
-    event: React.SyntheticEvent,
-    newValue: string
+  const handleUpdateStatus = async (employee: IEmployee, status: string) => {
+    try {
+      const docRef = doc(
+        database,
+        collections.employees.string,
+        employee.id || ''
+      );
+      await updateDoc(docRef, { appointmentStatus: status });
+      // Refresh the employee list after updating status
+      const querySnapshot = await getDocs(
+        collection(database, collections.employees.string)
+      );
+      const updatedEmployees: IEmployee[] = [];
+      querySnapshot.forEach((doc) => {
+        updatedEmployees.push({ id: doc.id, ...doc.data() } as IEmployee);
+      });
+      setEmployees(updatedEmployees);
+    } catch (error) {
+      console.error(
+        `Failed to update status to ${status} for employee:`,
+        error
+      );
+    }
+  };
+
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    employee: IEmployee
   ) => {
-    setActiveTab(newValue);
+    setAnchorEl(event.currentTarget);
+    setMenuEmployee(employee);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuEmployee(null);
+  };
+
+  const handleStatusChange = (status: string) => {
+    if (menuEmployee) {
+      handleUpdateStatus(menuEmployee, status);
+    }
+    handleMenuClose();
   };
 
   const columns: GridColDef[] = [
@@ -123,99 +169,71 @@ const EmployeeList: FC = () => {
       width: 250,
     },
     { field: 'permanentAddress', headerName: 'Permanent Address', width: 250 },
-    { field: 'contact.telephone', headerName: 'Telephone No', width: 150 },
-    { field: 'contact.phone', headerName: 'Mobile No', width: 150 },
-    { field: 'contact.email', headerName: 'Email Address', width: 200 },
     {
-      field: 'familyBackground.spouseLastname',
-      headerName: 'Spouse Last Name',
+      field: 'contact.telephone',
+      valueGetter: ({ row }) => row.contact.telephone || '',
+      headerName: 'Telephone No',
       width: 150,
     },
     {
-      field: 'familyBackground.spouseFirstName',
-      headerName: 'Spouse First Name',
+      field: 'contact.phone',
+      valueGetter: ({ row }) => row.contact.phone || '',
+      headerName: 'Mobile No',
       width: 150,
     },
     {
-      field: 'familyBackground.spouseMiddleName',
-      headerName: 'Spouse Middle Name',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.spouseOccupation',
-      headerName: 'Spouse Occupation',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.spouseBusinessName',
-      headerName: 'Spouse Business Name',
+      field: 'contact.email',
+      valueGetter: ({ row }) => row.contact.email || '',
+      headerName: 'Email Address',
       width: 200,
     },
-    {
-      field: 'familyBackground.spouseTelephoneNo',
-      headerName: 'Spouse Telephone No',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.fatherLastName',
-      headerName: 'Father Last Name',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.fatherFirstName',
-      headerName: 'Father First Name',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.fatherMiddleName',
-      headerName: 'Father Middle Name',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.motherLastName',
-      headerName: 'Mother Last Name',
-      width: 150,
-    },
-    {
-      field: 'familyBackground.motherFirstName',
-      headerName: 'Mother First Name',
-      width: 150,
-    },
+
     {
       field: 'familyBackground.motherMiddleName',
+      valueGetter: ({ row }) => row.familyBackground.motherMiddleName,
       headerName: 'Mother Middle Name',
       width: 150,
     },
     {
       field: 'civilService.careerService',
+      valueGetter: ({ row }) => row.civilService.careerService,
       headerName: 'Civil Service',
       width: 150,
     },
     {
       field: 'civilService.examinationDate',
+      valueGetter: ({ row }) => row.civilService.examinationDate,
       headerName: 'Examination Date',
       width: 150,
     },
     {
       field: 'civilService.examinationPlace',
+      valueGetter: ({ row }) => row.civilService.examinationPlace,
       headerName: 'Examination Place',
       width: 150,
     },
-    { field: 'civilService.rating', headerName: 'Rating', width: 150 },
+    {
+      field: 'civilService.rating',
+      valueGetter: ({ row }) => row.civilService.rating,
+      headerName: 'Rating',
+      width: 150,
+    },
     {
       field: 'civilService.license.number',
+      valueGetter: ({ row }) => row.civilService.license.number,
       headerName: 'License Number',
       width: 150,
     },
     {
       field: 'civilService.license.dateOfValidty',
+      valueGetter: ({ row }) => row.civilService.license.dateOfValidty,
       headerName: 'License Validity Date',
       width: 150,
     },
     {
       field: 'employeeRecord',
       headerName: 'Employee Record',
-      width: 400,
+      width: 600,
       valueGetter: (params) =>
         params.row.employeeRecord
           ?.map(
@@ -224,18 +242,7 @@ const EmployeeList: FC = () => {
           )
           .join(', ') || '',
     },
-    {
-      field: 'trainingProg',
-      headerName: 'Training Programs',
-      width: 400,
-      valueGetter: (params) =>
-        params.row.trainingProg
-          ?.map(
-            (training: any) =>
-              `${training.title} (${training.startDate} - ${training.endDate})`
-          )
-          .join(', ') || '',
-    },
+
     {
       field: 'otherInfo.specialSkills',
       headerName: 'Special Skills',
@@ -270,21 +277,65 @@ const EmployeeList: FC = () => {
           .join(', ') || '',
     },
     {
+      field: 'appointmentStatus', // Add this field
+      headerName: 'Status', // Set column header
+      width: 150,
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 150,
       renderCell: (params) => (
-        <GridActionsCellItem
-          icon={<Button>Edit</Button>}
-          label='Edit'
-          onClick={() => handleOpenModal(params.row as IEmployee)}
-        />
+        <>
+          <GridActionsCellItem
+            icon={<Button>Edit</Button>}
+            label='Edit'
+            onClick={() => handleOpenModal(params.row as IEmployee)}
+          />
+          {params.row.appointmentStatus === 'retired' ? (
+            <GridActionsCellItem
+              icon={<Button color='primary'>Revert to Regular</Button>}
+              label='Revert to Regular'
+              onClick={() =>
+                handleUpdateStatus(params.row as IEmployee, 'regular')
+              }
+            />
+          ) : (
+            <GridActionsCellItem
+              icon={
+                <Button
+                  onClick={(event) =>
+                    handleMenuClick(event, params.row as IEmployee)
+                  }
+                >
+                  Change Status
+                </Button>
+              }
+              label='Change Status'
+            />
+          )}
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handleStatusChange('retired')}>
+              Retire
+            </MenuItem>
+            <MenuItem onClick={() => handleStatusChange('resigned')}>
+              Resign
+            </MenuItem>
+            <MenuItem onClick={() => handleStatusChange('transferred')}>
+              Transfer
+            </MenuItem>
+          </Menu>
+        </>
       ),
     },
   ];
 
   return (
-    <UserWrapper>
+    <UserWrapper hasContainer>
       <Dialog
         open={openModal}
         onClose={handleCloseModal}
@@ -325,38 +376,23 @@ const EmployeeList: FC = () => {
       <Typography sx={{ mb: 4 }}>
         List of Employees of San Jose Del Monte National High School
       </Typography>
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={() => handleOpenModal()}
-      >
-        Add Employee
-      </Button>
-
-      <TabContext value={activeTab}>
-        <TabList
-          onChange={handleActiveTabChange}
-          sx={{
-            '.MuiTabs-scroller': {
-              overflowX: 'auto !important',
-            },
-          }}
+      <Stack direction='row' justifyContent='flex-end' spacing={2} mb={2}>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={() => handleOpenModal()}
         >
-          <Tab label='Employee List' value='0' />
-        </TabList>
-        <TabPanel value='0'>
-          <Paper sx={{ p: 2 }}>
-            <Box sx={{ height: 600, width: '100%' }}>
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={employees}
-                loading={loading}
-              />
-            </Box>
-          </Paper>
-        </TabPanel>
-      </TabContext>
+          Add Employee
+        </Button>
+      </Stack>
+      <Paper sx={{ p: 2 }}>
+        <DataGrid
+          autoHeight
+          columns={columns}
+          rows={employees}
+          loading={loading}
+        />
+      </Paper>
     </UserWrapper>
   );
 };

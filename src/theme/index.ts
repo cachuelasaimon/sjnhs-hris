@@ -8,6 +8,15 @@ const commonProps = {
       fontFamily: ['Poppins', 'sans-serif'].join(','),
     },
   },
+  components: {
+    MuiTabPanel: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+        },
+      },
+    },
+  },
 };
 
 const theme = {
@@ -23,7 +32,7 @@ const theme = {
 
   darkTheme: createTheme({
     palette: {
-      mode: 'dark',
+      mode: 'light',
     },
     ...commonProps,
   }),

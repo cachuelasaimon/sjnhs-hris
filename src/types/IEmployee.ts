@@ -1,12 +1,14 @@
 import { BaseSchema } from './BaseSchema';
 
+type EducationLevel =
+  | 'Elementary'
+  | 'Secondary'
+  | 'Vocational/Trade Course'
+  | 'College'
+  | 'Graduate Studies';
+
 interface IEducationalBackground {
-  level:
-    | 'Elementary'
-    | 'Secondary'
-    | 'Vocational/Trade Course'
-    | 'College'
-    | 'Graduate Studies';
+  level: EducationLevel;
   schoolName: string;
   educationalAttainment?: string;
   startDate: string;
@@ -32,13 +34,15 @@ interface IFamilyBackground {
   motherLastName?: string;
   motherFirstName?: string;
   motherMiddleName?: string;
-  childName?: string;
-  childBirthDate?: string;
+  children?: {
+    name: string;
+    birthDate: string;
+  }[];
 }
 
 interface ILicense {
   number?: string;
-  dateOfValidty?: string;
+  dateOfValidity?: string; // Corrected the typo from dateOfValidty
 }
 
 interface ICivilService {
@@ -57,7 +61,7 @@ interface IWorkExperience {
   monthlySalary: string;
   salaryGrade: string;
   appointmentStatus: string;
-  govtService: string;
+  govtService: 'Yes' | 'No';
 }
 
 interface ITrainingProg {
@@ -70,9 +74,9 @@ interface ITrainingProg {
 }
 
 interface IOtherInfo {
-  specialSkills: string[];
-  recognition: string[];
-  organization: string[];
+  specialSkills?: string;
+  recognition?: string;
+  organization?: string;
 }
 
 interface IContact {
@@ -82,6 +86,7 @@ interface IContact {
 }
 
 export interface IEmployee extends BaseSchema {
+  license: any;
   employeeId?: string;
   displayPicture?: string;
   lastName?: string;
@@ -90,22 +95,23 @@ export interface IEmployee extends BaseSchema {
   nameExtension?: string;
   birthDay?: string;
   birthPlace?: string;
-  gender?: string;
-  civilStatus?: string;
+  gender?: 'Male' | 'Female' | 'Other';
+  civilStatus?: 'Single' | 'Married' | 'Widowed' | 'Separated' | 'Divorced';
   height?: string;
   weight?: string;
   bloodType?: string;
+  status?: string;
   gsisId?: string;
   pagibigNumber?: string;
   philhealthNumber?: string;
   sssNo?: string;
   tinNo?: string;
   agencyEmployeeNumber?: string;
-  citizenShip?: string;
+  citizenship: string;
   residentialAddress?: string;
   permanentAddress?: string;
   contact?: IContact;
-  familyBackground: IFamilyBackground;
+  familyBackground?: IFamilyBackground; // Marked as optional to match with other properties
   civilService?: ICivilService;
   employeeRecord?: IWorkExperience[];
   trainingProg?: ITrainingProg[];
