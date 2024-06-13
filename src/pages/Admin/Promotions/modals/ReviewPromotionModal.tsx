@@ -24,7 +24,7 @@ import { Field, Form, Formik } from 'formik';
 import { Select, TextField } from 'formik-mui';
 
 import { MOCK_EMPLOYEES } from '~/assets';
-import { IEmployee, IEndorsement } from '~/types';
+import { IEmployee, IPromotion } from '~/types';
 import {
   SALARY_GRADE,
   Set,
@@ -40,7 +40,7 @@ interface ApprovePromotionModalProps {
   open: boolean;
   onClose: () => void;
   employee: IEmployee;
-  endorsement: IEndorsement;
+  endorsement: IPromotion;
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -68,7 +68,7 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
 }) => {
   const notif = useQuickNotif();
   const latestEmployeeRecord = getLatestEntry({
-    arr: employee.employeeRecord,
+    arr: employee?.employeeRecord || [],
     referenceKey: 'startDate',
   });
   const { user } = useLogin();
@@ -85,7 +85,7 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
   }, []);
 
   // TODO: handle endorsement submit
-  const handleEndorsementApprovalSubmit = async (values: IEndorsement) => {
+  const handleEndorsementApprovalSubmit = async (values: IPromotion) => {
     try {
       // TODO: Update Endorsement Document
       /**
@@ -94,15 +94,15 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
        */
       // NOTE uncomment the line below to see the endorsement object and the 'doc' property which should not be included in the PUT request (according to firebase API)
       // console.log({endorsement});
-      // @ts-ignore - doc is not part of the IEndorsement interface (yet)
+      // @ts-ignore - doc is not part of the IPromotion interface (yet)
       const { doc: _endorsementDoc, ...endorsementDetails } = endorsement;
-      await Set<IEndorsement>({
+      await Set<IPromotion>({
         data: {
           ...endorsementDetails,
           status: 'approved',
           approvedDate: format(new Date(), 'yyyy-MM-dd'),
         },
-        docRef: `${collections.endorsements.string}/${endorsement.id}`,
+        docRef: `${collections.promotionEndorsements.string}/${endorsement.id}`,
       });
       // TODO: Update Employee Document
       /**
@@ -116,7 +116,7 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
         doc: _employeeDoc,
         endorsement: _endorsement,
         ...employeeDetails
-      } = employee as IEmployee & { endorsement: IEndorsement };
+      } = employee as IEmployee & { endorsement: IPromotion };
 
       await Set<IEmployee>({
         data: {
@@ -125,15 +125,13 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
             {
               ...latestEmployeeRecord,
               startDate: format(new Date(), 'yyyy-MM-dd'),
+              endDate: '',
+              position: values.position,
               salaryGrade: values.salaryGrade,
               monthlySalary: values.monthlySalary,
             },
-            {
-              ...latestEmployeeRecord,
-              endDate: format(new Date(), 'yyyy-MM-dd'),
-            },
             // sort the employeeRecords' by latest startDate and remove first item
-            ...employeeDetails.employeeRecord
+            ...(employeeDetails?.employeeRecord || [])
               .sort(
                 (a, b) =>
                   new Date(b.startDate).getTime() -
@@ -157,15 +155,15 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
     try {
       // NOTE uncomment the line below to see the endorsement object and the 'doc' property which should not be included in the PUT request (according to firebase API)
       // console.log({endorsement});
-      // @ts-ignore - doc is not part of the IEndorsement interface (yet)
+      // @ts-ignore - doc is not part of the IPromotion interface (yet)
       const { doc, ...rest } = endorsement;
-      await Set<IEndorsement>({
+      await Set<IPromotion>({
         data: {
           ...rest,
           status: 'declined',
           declinedBy: { email: user?.email || '', id: user?.uid || '' },
         },
-        docRef: `${collections.endorsements.string}/${endorsement.id}`,
+        docRef: `${collections.promotionEndorsements.string}/${endorsement.id}`,
       });
       notif('Endorsement status updated - Declined', 'success');
       onClose();
@@ -183,10 +181,12 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
     Icon: typeof Mail;
   }> = [
     {
+      // @ts-ignore
       key: 'email',
       Icon: Mail,
     },
     {
+      // @ts-ignore
       key: 'phone',
       Icon: Phone,
     },
@@ -267,7 +267,10 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
                   >
                     <Icon sx={{ fontSize: '1rem', mr: 1 }} />
                     <Typography color='textSecondary' variant='caption'>
-                      {employee.contact[key]}
+                      {
+                        // @ts-ignore
+                        employee?.contact[key]
+                      }
                     </Typography>
                   </Box>
                 ))}
@@ -394,14 +397,26 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
             {({ setFieldValue, handleChange }) => (
               <Form>
                 <Grid container spacing={2} mb={2}>
+                  <Grid item xs={12}>
+                    <Field
+                      component={TextField}
+                      name='position'
+                      id='position'
+                      label='Position'
+                      fullWidth={true}
+                      disabled={true}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2} mb={2}>
                   <Grid item xs={6} md={6} lg={6}>
                     <Field
                       component={Select}
+                      disabled={true}
                       id='salaryGrade'
                       name='salaryGrade'
                       label='Salary Grade'
                       formControl={{ fullWidth: true }}
-                      disabled={true}
                       onChange={(params: any) => {
                         handleChange(params);
                         setFieldValue(
@@ -435,7 +450,6 @@ const ReviewPromotionModal: FC<ApprovePromotionModalProps> = ({
                     />
                   </Grid>
                 </Grid>
-
                 {/* // TODO: Submit button */}
                 <Stack direction={'row'} spacing={3}>
                   <Button variant='contained' type='submit'>

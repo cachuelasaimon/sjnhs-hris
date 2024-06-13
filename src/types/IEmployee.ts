@@ -1,14 +1,12 @@
 import { BaseSchema } from './BaseSchema';
 
-type EducationLevel =
-  | 'Elementary'
-  | 'Secondary'
-  | 'Vocational/Trade Course'
-  | 'College'
-  | 'Graduate Studies';
-
-interface IEducationalBackground {
-  level: EducationLevel;
+export interface IEducationalBackground {
+  level:
+    | 'Elementary'
+    | 'Secondary'
+    | 'Vocational/Trade Course'
+    | 'College'
+    | 'Graduate Studies';
   schoolName: string;
   educationalAttainment?: string;
   startDate: string;
@@ -21,7 +19,7 @@ interface IEducationalBackground {
   };
 }
 
-interface IFamilyBackground {
+export interface IFamilyBackground {
   spouseLastname?: string;
   spouseFirstName?: string;
   spouseMiddleName?: string;
@@ -40,12 +38,12 @@ interface IFamilyBackground {
   }[];
 }
 
-interface ILicense {
+export interface ILicense {
   number?: string;
   dateOfValidity?: string; // Corrected the typo from dateOfValidty
 }
 
-interface ICivilService {
+export interface ICivilService {
   careerService?: string;
   examinationDate?: string;
   examinationPlace?: string;
@@ -53,7 +51,7 @@ interface ICivilService {
   license?: ILicense;
 }
 
-interface IWorkExperience {
+export interface IWorkExperience {
   startDate: string;
   endDate: string;
   position: string;
@@ -64,7 +62,7 @@ interface IWorkExperience {
   govtService: 'Yes' | 'No';
 }
 
-interface ITrainingProg {
+export interface ITrainingProg {
   title: string;
   startDate: string;
   endDate: string;
@@ -73,13 +71,13 @@ interface ITrainingProg {
   conductedBy: string;
 }
 
-interface IOtherInfo {
-  specialSkills?: string;
-  recognition?: string;
-  organization?: string;
+export interface IOtherInfo {
+  specialSkills: string[];
+  recognition: string[];
+  organization: string[];
 }
 
-interface IContact {
+export interface IContact {
   email?: string;
   phone?: string;
   telephone?: string;
