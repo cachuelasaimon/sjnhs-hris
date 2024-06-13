@@ -32,13 +32,15 @@ export interface IFamilyBackground {
   motherLastName?: string;
   motherFirstName?: string;
   motherMiddleName?: string;
-  childName?: string;
-  childBirthDate?: string;
+  children?: {
+    name: string;
+    birthDate: string;
+  }[];
 }
 
 export interface ILicense {
   number?: string;
-  dateOfValidty?: string;
+  dateOfValidity?: string; // Corrected the typo from dateOfValidty
 }
 
 export interface ICivilService {
@@ -57,7 +59,7 @@ export interface IWorkExperience {
   monthlySalary: string;
   salaryGrade: string;
   appointmentStatus: string;
-  govtService: string;
+  govtService: 'Yes' | 'No';
 }
 
 export interface ITrainingProg {
@@ -82,6 +84,7 @@ export interface IContact {
 }
 
 export interface IEmployee extends BaseSchema {
+  license: any;
   employeeId?: string;
   displayPicture?: string;
   lastName?: string;
@@ -90,22 +93,23 @@ export interface IEmployee extends BaseSchema {
   nameExtension?: string;
   birthDay?: string;
   birthPlace?: string;
-  gender?: string;
-  civilStatus?: string;
+  gender?: 'Male' | 'Female' | 'Other';
+  civilStatus?: 'Single' | 'Married' | 'Widowed' | 'Separated' | 'Divorced';
   height?: string;
   weight?: string;
   bloodType?: string;
+  status?: string;
   gsisId?: string;
   pagibigNumber?: string;
   philhealthNumber?: string;
   sssNo?: string;
   tinNo?: string;
   agencyEmployeeNumber?: string;
-  citizenShip?: string;
+  citizenship: string;
   residentialAddress?: string;
   permanentAddress?: string;
   contact?: IContact;
-  familyBackground: IFamilyBackground;
+  familyBackground?: IFamilyBackground; // Marked as optional to match with other properties
   civilService?: ICivilService;
   employeeRecord?: IWorkExperience[];
   trainingProg?: ITrainingProg[];

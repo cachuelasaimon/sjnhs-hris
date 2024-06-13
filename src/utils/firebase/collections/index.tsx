@@ -26,6 +26,7 @@ interface ICompanyInfo {
 }
 
 interface ICollections {
+  loyaltyPays: ICollection;
   companyInfo: ICompanyInfo;
   addresses: ICollection;
   carts: ICollection;
@@ -68,5 +69,9 @@ export const collections: ICollections = {
   endorsements: {
     ref: collection(database, `${db_dev}/endorsements`),
     string: `${db_dev}/endorsements`,
+  },
+  loyaltyPays: {
+    ref: collection(database, `${db_dev}/loyaltypay`),
+    string: `${db_dev}/loyaltypay`,
   },
 };

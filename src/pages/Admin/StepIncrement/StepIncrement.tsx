@@ -19,7 +19,9 @@ import {
 const StepIncrement: FC = () => {
   // ** Modal Handling
   const [openModal, setOpenModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(
+    null
+  );
   const [selectedEndorsement, setSelectedEndorsement] =
     useState<IEndorsement | null>(null);
 
@@ -32,7 +34,7 @@ const StepIncrement: FC = () => {
       collectionRef: collections.employees.ref,
     }
   );
-  console.log({ employees });
+
   const { docs: endorsements, isLoading: endorsementsLoading } =
     useListen<IEndorsement>({
       collectionRef: collections.endorsements.ref,
@@ -51,9 +53,9 @@ const StepIncrement: FC = () => {
   const isLoading = employeesLoading || endorsementsLoading;
 
   // ** Tab Handling
-  const [activeTab, setActiveTab] = useState('0');
+  const [activeTab, setActiveTab] = useState<string>('0');
 
-  const handleActiveTabChange = (_: any, newValue: string) =>
+  const handleActiveTabChange = (_: React.ChangeEvent<{}>, newValue: string) =>
     setActiveTab(newValue);
 
   if (isLoading) return <>Loading...</>;
@@ -69,7 +71,6 @@ const StepIncrement: FC = () => {
        *   - Fetch all endorsements of employee
        *   - Check if any of the endorsements has status of 'pending'
        */
-
       !endorsementsMap
         .get(employee?.employeeId || '')
         ?.some((endorsement) => endorsement.status === 'pending')
@@ -81,19 +82,6 @@ const StepIncrement: FC = () => {
       endorsement,
     })) || [];
 
-  // const employeesWithApprovedEndorsement =
-  //   endorsements
-  //     ?.filter((e) => e.status === 'approved')
-  //     .map((endorsement) => {
-  //       console.log('etits', { endorsement });
-  //       return {
-  //         endorsement,
-  //         ...(employees || []).find(
-  //           (employee) => employee.employeeId === endorsement.employeeId
-  //         ),
-  //       };
-  //     }) || [];
-
   return (
     <UserWrapper hasContainer>
       {/* // ** PAGE TITLE */}
@@ -101,23 +89,17 @@ const StepIncrement: FC = () => {
         Step Increment
       </Typography>
       <Typography sx={{ mb: 4 }}>
-        {' '}
-        Endorse employees that are eligible for salary step increment{' '}
+        Endorse employees that are eligible for salary step increment
       </Typography>
 
       {/* // ** PAGE TABS */}
       <TabContext value={activeTab}>
         <TabList
           onChange={handleActiveTabChange}
-          sx={{
-            '.MuiTabs-scroller': {
-              overflowX: 'auto !important',
-            },
-          }}
+          sx={{ '.MuiTabs-scroller': { overflowX: 'auto !important' } }}
         >
           <Tab label='For Endorsement' value={'0'} />
           <Tab label='Pending Approval' value={'1'} />
-          {/* <Tab label='Approved Endorsements' value={'2'} /> */}
         </TabList>
         <TabPanel value={'0'}>
           {/* // ** FIRST TAB - FOR ENDORSEMENT*/}
@@ -336,26 +318,14 @@ const StepIncrement: FC = () => {
               <DataGrid
                 checkboxSelection={false}
                 columns={[
-                  {
-                    field: 'prefix',
-                    headerName: 'Prefix',
-                    width: 120,
-                  },
-                  {
-                    field: 'firstName',
-                    headerName: 'First Name',
-                    width: 220,
-                  },
+                  { field: 'prefix', headerName: 'Prefix', width: 120 },
+                  { field: 'firstName', headerName: 'First Name', width: 220 },
                   {
                     field: 'middleName',
                     headerName: 'Middle Name',
                     width: 220,
                   },
-                  {
-                    field: 'lastName',
-                    headerName: 'Last Name',
-                    width: 220,
-                  },
+                  { field: 'lastName', headerName: 'Last Name', width: 220 },
                   {
                     field: 'philhealthNumber',
                     headerName: 'PhilHealth Number',
@@ -366,47 +336,131 @@ const StepIncrement: FC = () => {
                     headerName: 'PAGIBIG Number',
                     width: 180,
                   },
-                  {
-                    field: 'tinNo',
-                    headerName: 'TIN Number',
-                    width: 180,
-                  },
-                  {
-                    field: 'prcNo',
-                    headerName: 'PRC Pin',
-                    width: 180,
-                  },
+                  { field: 'tinNo', headerName: 'TIN Number', width: 180 },
+                  { field: 'prcNo', headerName: 'PRC Pin', width: 180 },
                   {
                     field: 'salaryGrade',
                     headerName: 'Salary Grade',
                     width: 180,
                     valueGetter: (params: any) => {
-                      return params.row.endorsement.salaryGrade;
+                      const employeeRecord = getLatestEntry({
+                        arr: params.row
+                          .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
+                        referenceKey: 'startDate',
+                      });
+                      return employeeRecord.salaryGrade;
                     },
                   },
+                  {
+                    field: '',
+                    headerName: 'Endorse',
+                    renderCell: (params: any) => (
+                      <Button
+                        onClick={() => {
+                          setSelectedEmployee(params.row);
+                          handleOpenModal();
+                        }}
+                        variant='contained'
+                      >
+                        Endorse
+                      </Button>
+                    ),
+                  },
                 ]}
-                rows={
-                  endorsements
-                    ?.filter((e) => e.status === 'approved')
-                    .map((endorsement) => {
-                      return {
-                        ...(employees || []).find(
-                          (employee) =>
-                            employee.employeeId === endorsement.employeeId
-                        ),
-                        endorsement,
-                        ne: endorsement,
-                      };
-                    }) || []
-                }
+                rows={employeesForEndorsement}
               />
             </Paper>
           ) : (
             <Paper sx={{ p: 3, textAlign: 'center' }}>
-              No Approved Endorsements
+              No Employees Eligible for Endorsement
             </Paper>
           )}
-        </TabPanel> */}
+
+          {selectedEmployee && (
+            <ConfirmEndorsementModal
+              open={openModal}
+              onClose={handleCloseModal}
+              employee={selectedEmployee}
+            />
+          )}
+        </TabPanel>
+        <TabPanel value={'1'}>
+          {employeesWithPendingEndorsement.length > 0 ? (
+            <Paper sx={{ p: 2 }}>
+              <DataGrid
+                checkboxSelection={false}
+                columns={[
+                  { field: 'prefix', headerName: 'Prefix', width: 120 },
+                  { field: 'firstName', headerName: 'First Name', width: 220 },
+                  {
+                    field: 'middleName',
+                    headerName: 'Middle Name',
+                    width: 220,
+                  },
+                  { field: 'lastName', headerName: 'Last Name', width: 220 },
+                  {
+                    field: 'philhealthNumber',
+                    headerName: 'PhilHealth Number',
+                    width: 180,
+                  },
+                  {
+                    field: 'pagibigNumber',
+                    headerName: 'PAGIBIG Number',
+                    width: 180,
+                  },
+                  { field: 'tinNo', headerName: 'TIN Number', width: 180 },
+                  { field: 'prcNo', headerName: 'PRC Pin', width: 180 },
+                  {
+                    field: 'salaryGrade',
+                    headerName: 'Salary Grade',
+                    width: 180,
+                    valueGetter: (params: any) => {
+                      const employeeRecord = getLatestEntry({
+                        arr: params.row
+                          .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
+                        referenceKey: 'startDate',
+                      });
+                      return employeeRecord.salaryGrade;
+                    },
+                  },
+                  {
+                    field: '',
+                    headerName: 'Endorse',
+                    width: 250,
+                    renderCell: (params: any) => (
+                      <Button
+                        onClick={() => {
+                          setSelectedEmployee(params.row);
+                          setSelectedEndorsement(
+                            params.row.endorsement as IEndorsement
+                          );
+                          handleOpenModal();
+                        }}
+                        variant='contained'
+                      >
+                        Review Endorsement
+                      </Button>
+                    ),
+                  },
+                ]}
+                rows={employeesWithPendingEndorsement}
+              />
+            </Paper>
+          ) : (
+            <Paper sx={{ p: 3, textAlign: 'center' }}>
+              No Pending Endorsements
+            </Paper>
+          )}
+
+          {selectedEmployee && selectedEndorsement && (
+            <ReviewEndorsementModal
+              open={openModal}
+              onClose={handleCloseModal}
+              employee={selectedEmployee}
+              endorsement={selectedEndorsement}
+            />
+          )}
+        </TabPanel>
       </TabContext>
     </UserWrapper>
   );
