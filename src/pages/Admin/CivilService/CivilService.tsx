@@ -299,7 +299,7 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
       fields: ['height', 'weight', 'bloodType'],
     },
     {
-      title: 'Government IDs',
+      title: 'Government ID',
       fields: [
         'gsisId',
         'pagibigNumber',
@@ -307,6 +307,7 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
         'sssNo',
         'tinNo',
         'agencyEmployeeNumber',
+        'employeeId',
       ],
     },
     {
