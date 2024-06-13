@@ -6,9 +6,8 @@ import { DataGrid } from '@mui/x-data-grid';
 
 import { ConfirmEndorsementModal, ReviewEndorsementModal } from './modals';
 
-import { MOCK_EMPLOYEES } from '~/assets';
 import { UserWrapper } from '~/components';
-import { IEmployee, IEndorsement } from '~/types';
+import { IEmployee, IEndorsement, IWorkExperience } from '~/types';
 import {
   collections,
   createGroupedHashMap,
@@ -70,9 +69,9 @@ const StepIncrement: FC = () => {
        *   - Fetch all endorsements of employee
        *   - Check if any of the endorsements has status of 'pending'
        */
-      endorsementsMap.get(employee.employeeId)?.length === 0 ||
+
       !endorsementsMap
-        .get(employee.employeeId)
+        .get(employee?.employeeId || '')
         ?.some((endorsement) => endorsement.status === 'pending')
   );
 
@@ -175,14 +174,14 @@ const StepIncrement: FC = () => {
                       width: 180,
                       valueGetter: (params: any) => {
                         const employeeRecord =
-                          params.row.employeeRecord > 0
+                          (params.row.employeeRecord || []).length > 0
                             ? getLatestEntry({
                                 arr: params.row
-                                  .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
+                                  .employeeRecord as IWorkExperience[],
                                 referenceKey: 'startDate',
                               })
-                            : null;
-                        return employeeRecord?.salaryGrade || 'Not Available';
+                            : { salaryGrade: '' };
+                        return employeeRecord.salaryGrade;
                       },
                     },
                     {
@@ -275,11 +274,14 @@ const StepIncrement: FC = () => {
                       headerName: 'Salary Grade',
                       width: 180,
                       valueGetter: (params: any) => {
-                        const employeeRecord = getLatestEntry({
-                          arr: params.row
-                            .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                          referenceKey: 'startDate',
-                        });
+                        const employeeRecord =
+                          (params.row.employeeRecord || []).length > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as IWorkExperience[],
+                                referenceKey: 'startDate',
+                              })
+                            : { salaryGrade: '' };
                         return employeeRecord.salaryGrade;
                       },
                     },

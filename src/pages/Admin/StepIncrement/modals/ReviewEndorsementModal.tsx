@@ -68,7 +68,7 @@ const ReviewEndorsementModal: FC<ApproveEndorsementModalProps> = ({
 }) => {
   const notif = useQuickNotif();
   const latestEmployeeRecord = getLatestEntry({
-    arr: employee.employeeRecord,
+    arr: employee.employeeRecord || [],
     referenceKey: 'startDate',
   });
   const { user } = useLogin();
@@ -125,15 +125,12 @@ const ReviewEndorsementModal: FC<ApproveEndorsementModalProps> = ({
             {
               ...latestEmployeeRecord,
               startDate: format(new Date(), 'yyyy-MM-dd'),
+              endDate: '',
               salaryGrade: values.salaryGrade,
               monthlySalary: values.monthlySalary,
             },
-            {
-              ...latestEmployeeRecord,
-              endDate: format(new Date(), 'yyyy-MM-dd'),
-            },
             // sort the employeeRecords' by latest startDate and remove first item
-            ...employeeDetails.employeeRecord
+            ...(employeeDetails?.employeeRecord || [])
               .sort(
                 (a, b) =>
                   new Date(b.startDate).getTime() -
@@ -183,10 +180,12 @@ const ReviewEndorsementModal: FC<ApproveEndorsementModalProps> = ({
     Icon: typeof Mail;
   }> = [
     {
+      // @ts-ignore
       key: 'email',
       Icon: Mail,
     },
     {
+      // @ts-ignore
       key: 'phone',
       Icon: Phone,
     },
@@ -267,7 +266,10 @@ const ReviewEndorsementModal: FC<ApproveEndorsementModalProps> = ({
                   >
                     <Icon sx={{ fontSize: '1rem', mr: 1 }} />
                     <Typography color='textSecondary' variant='caption'>
-                      {employee.contact[key]}
+                      {
+                        // @ts-ignore
+                        employee.contact[key]
+                      }
                     </Typography>
                   </Box>
                 ))}

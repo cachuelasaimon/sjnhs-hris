@@ -1,6 +1,6 @@
 import { BaseSchema } from './BaseSchema';
 
-interface IEducationalBackground {
+export interface IEducationalBackground {
   level:
     | 'Elementary'
     | 'Secondary'
@@ -19,7 +19,7 @@ interface IEducationalBackground {
   };
 }
 
-interface IFamilyBackground {
+export interface IFamilyBackground {
   spouseLastname?: string;
   spouseFirstName?: string;
   spouseMiddleName?: string;
@@ -36,12 +36,12 @@ interface IFamilyBackground {
   childBirthDate?: string;
 }
 
-interface ILicense {
+export interface ILicense {
   number?: string;
   dateOfValidty?: string;
 }
 
-interface ICivilService {
+export interface ICivilService {
   careerService?: string;
   examinationDate?: string;
   examinationPlace?: string;
@@ -49,7 +49,7 @@ interface ICivilService {
   license?: ILicense;
 }
 
-interface IWorkExperience {
+export interface IWorkExperience {
   startDate: string;
   endDate: string;
   position: string;
@@ -60,7 +60,7 @@ interface IWorkExperience {
   govtService: string;
 }
 
-interface ITrainingProg {
+export interface ITrainingProg {
   title: string;
   startDate: string;
   endDate: string;
@@ -69,13 +69,13 @@ interface ITrainingProg {
   conductedBy: string;
 }
 
-interface IOtherInfo {
+export interface IOtherInfo {
   specialSkills: string[];
   recognition: string[];
   organization: string[];
 }
 
-interface IContact {
+export interface IContact {
   email?: string;
   phone?: string;
   telephone?: string;
