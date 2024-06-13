@@ -6,9 +6,8 @@ import { DataGrid } from '@mui/x-data-grid';
 
 import { ConfirmPromotionModal, ReviewPromotionModal } from './modals';
 
-import { MOCK_EMPLOYEES } from '~/assets';
 import { UserWrapper } from '~/components';
-import { IEmployee, IPromotion } from '~/types';
+import { IEmployee, IPromotion, IWorkExperience } from '~/types';
 import {
   collections,
   createGroupedHashMap,
@@ -28,28 +27,29 @@ const Promotions: FC = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   // TODO: Fetch Employees & Endorsements
-  const { docs: employees, isLoading: employeesLoading } =
-    useListen<ICivilService>({
+  const { docs: employees, isLoading: employeesLoading } = useListen<IEmployee>(
+    {
       collectionRef: collections.employees.ref,
-    });
-  // eslint-disable-next-line no-console
-  console.log({ employees });
-  const { docs: endorsements, isLoading: endorsementsLoading } =
-    useListen<IPromotion>({
-      collectionRef: collections.endorsements.ref,
-    });
+    }
+  );
+  const {
+    docs: promotionEndorsements,
+    isLoading: promotionEndorsementsLoading,
+  } = useListen<IPromotion>({
+    collectionRef: collections.promotionEndorsements.ref,
+  });
 
   const endorsementsMap = createGroupedHashMap(
-    endorsements || [],
+    promotionEndorsements || [],
     'employeeId'
   );
   const endorsementsMapByStatus = createGroupedHashMap(
-    endorsements || [],
+    promotionEndorsements || [],
     'status'
   );
   const employeesMap = createHashMap(employees || [], 'employeeId');
 
-  const isLoading = employeesLoading || endorsementsLoading;
+  const isLoading = employeesLoading || promotionEndorsementsLoading;
 
   // ** Tab Handling
   const [activeTab, setActiveTab] = useState('0');
@@ -70,9 +70,8 @@ const Promotions: FC = () => {
        *   - Fetch all endorsements of employee
        *   - Check if any of the endorsements has status of 'pending'
        */
-      endorsementsMap.get(employee.employeeId)?.length === 0 ||
       !endorsementsMap
-        .get(employee.employeeId)
+        .get(employee?.employeeId || '')
         ?.some((endorsement) => endorsement.status === 'pending')
   );
 
@@ -174,11 +173,14 @@ const Promotions: FC = () => {
                       headerName: 'Salary Grade',
                       width: 180,
                       valueGetter: (params: any) => {
-                        const employeeRecord = getLatestEntry({
-                          arr: params.row
-                            .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                          referenceKey: 'startDate',
-                        });
+                        const employeeRecord =
+                          (params.row.employeeRecord || []).length > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as IWorkExperience[],
+                                referenceKey: 'startDate',
+                              })
+                            : { salaryGrade: '' };
                         return employeeRecord.salaryGrade;
                       },
                     },
@@ -272,11 +274,14 @@ const Promotions: FC = () => {
                       headerName: 'Salary Grade',
                       width: 180,
                       valueGetter: (params: any) => {
-                        const employeeRecord = getLatestEntry({
-                          arr: params.row
-                            .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                          referenceKey: 'startDate',
-                        });
+                        const employeeRecord =
+                          (params.row.employeeRecord || []).length > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as IWorkExperience[],
+                                referenceKey: 'startDate',
+                              })
+                            : { salaryGrade: '' };
                         return employeeRecord.salaryGrade;
                       },
                     },
@@ -376,7 +381,32 @@ const Promotions: FC = () => {
                     headerName: 'Salary Grade',
                     width: 180,
                     valueGetter: (params: any) => {
-                      return params.row.endorsement.salaryGrade;
+                      const employeeRecord =
+                        (params.row.employeeRecord || []).length > 0
+                          ? getLatestEntry({
+                              arr: params.row
+                                .employeeRecord as IWorkExperience[],
+                              referenceKey: 'startDate',
+                            })
+                          : { salaryGrade: '' };
+                      return employeeRecord.salaryGrade;
+                    },
+                  },
+                  {
+                    field: '',
+                    headerName: 'Endorse',
+                    renderCell: (params: any) => {
+                      return (
+                        <Button
+                          onClick={() => {
+                            setSelectedEmployee(params.row);
+                            handleOpenModal();
+                          }}
+                          variant='contained'
+                        >
+                          Endorse
+                        </Button>
+                      );
                     },
                   },
                 ]}
@@ -396,12 +426,20 @@ const Promotions: FC = () => {
                 }
               />
             </Paper>
-          ) : (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              No Approved Endorsements
-            </Paper>
-          )}
-        </TabPanel> */}
+
+            {selectedEmployee && (
+              <EndorsePromotionModal
+                open={openModal}
+                onClose={handleCloseModal}
+                employee={selectedEmployee}
+              />
+            )}
+          </>
+        </TabPanel>
+        {/* // ** SECOND TAB - FOR PENDING APPROVAL*/}
+
+        {/* // ** THIRD - APPROVED*/}
+        {/* <TabPanel value={'2'}>Approved Promotions</TabPanel> */}
       </TabContext>
     </UserWrapper>
   );

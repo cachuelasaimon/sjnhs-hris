@@ -55,7 +55,7 @@ const StepIncrement: FC = () => {
   // ** Tab Handling
   const [activeTab, setActiveTab] = useState<string>('0');
 
-  const handleActiveTabChange = (_: React.ChangeEvent<{}>, newValue: string) =>
+  const handleActiveTabChange = (_: React.ChangeEvent<any>, newValue: string) =>
     setActiveTab(newValue);
 
   if (isLoading) return <>Loading...</>;
@@ -348,7 +348,7 @@ const StepIncrement: FC = () => {
                           .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
                         referenceKey: 'startDate',
                       });
-                      return employeeRecord.salaryGrade;
+                      return employeeRecord?.salaryGrade;
                     },
                   },
                   {
@@ -383,87 +383,9 @@ const StepIncrement: FC = () => {
               employee={selectedEmployee}
             />
           )}
-        </TabPanel>
-        <TabPanel value={'1'}>
-          {employeesWithPendingEndorsement.length > 0 ? (
-            <Paper sx={{ p: 2 }}>
-              <DataGrid
-                checkboxSelection={false}
-                columns={[
-                  { field: 'prefix', headerName: 'Prefix', width: 120 },
-                  { field: 'firstName', headerName: 'First Name', width: 220 },
-                  {
-                    field: 'middleName',
-                    headerName: 'Middle Name',
-                    width: 220,
-                  },
-                  { field: 'lastName', headerName: 'Last Name', width: 220 },
-                  {
-                    field: 'philhealthNumber',
-                    headerName: 'PhilHealth Number',
-                    width: 180,
-                  },
-                  {
-                    field: 'pagibigNumber',
-                    headerName: 'PAGIBIG Number',
-                    width: 180,
-                  },
-                  { field: 'tinNo', headerName: 'TIN Number', width: 180 },
-                  { field: 'prcNo', headerName: 'PRC Pin', width: 180 },
-                  {
-                    field: 'salaryGrade',
-                    headerName: 'Salary Grade',
-                    width: 180,
-                    valueGetter: (params: any) => {
-                      const employeeRecord = getLatestEntry({
-                        arr: params.row
-                          .employeeRecord as (typeof MOCK_EMPLOYEES)[0]['employeeRecord'],
-                        referenceKey: 'startDate',
-                      });
-                      return employeeRecord.salaryGrade;
-                    },
-                  },
-                  {
-                    field: '',
-                    headerName: 'Endorse',
-                    width: 250,
-                    renderCell: (params: any) => (
-                      <Button
-                        onClick={() => {
-                          setSelectedEmployee(params.row);
-                          setSelectedEndorsement(
-                            params.row.endorsement as IEndorsement
-                          );
-                          handleOpenModal();
-                        }}
-                        variant='contained'
-                      >
-                        Review Endorsement
-                      </Button>
-                    ),
-                  },
-                ]}
-                rows={employeesWithPendingEndorsement}
-              />
-            </Paper>
-          ) : (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              No Pending Endorsements
-            </Paper>
-          )}
-
-          {selectedEmployee && selectedEndorsement && (
-            <ReviewEndorsementModal
-              open={openModal}
-              onClose={handleCloseModal}
-              employee={selectedEmployee}
-              endorsement={selectedEndorsement}
-            />
-          )}
-        </TabPanel>
+        </TabPanel> */}
       </TabContext>
     </UserWrapper>
   );
 };
-
 export default StepIncrement;

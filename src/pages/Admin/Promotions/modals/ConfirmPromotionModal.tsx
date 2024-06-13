@@ -24,7 +24,7 @@ import { Field, Form, Formik } from 'formik';
 import { Select, TextField } from 'formik-mui';
 
 import { MOCK_EMPLOYEES } from '~/assets';
-import { IEmployee, IEndorsement } from '~/types';
+import { IEmployee, IPromotion } from '~/types';
 import {
   Add,
   SALARY_GRADE,
@@ -65,7 +65,7 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
 }) => {
   const notif = useQuickNotif();
   const latestEmployeeRecord = getLatestEntry({
-    arr: employee.employeeRecord,
+    arr: employee?.employeeRecord || [],
     referenceKey: 'startDate',
   });
   const { user } = useLogin();
@@ -82,18 +82,19 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
   }, []);
 
   // TODO: handle endorsement submit
-  const handleEndorsementSubmit = async (values: IEndorsement) => {
+  const handleEndorsementSubmit = async (values: IPromotion) => {
     try {
       // TODO: Submit endorsement (setDoc)
-      await Add<IEndorsement>({
-        collectionRef: collections.endorsements.string,
+      await Add<IPromotion>({
+        collectionRef: collections.promotionEndorsements.string,
         data: {
-          employeeId: employee.employeeId,
+          employeeId: values.employeeId || '',
           status: values.status,
           endorser: {
             id: user?.uid || '',
             email: user?.email || '',
           },
+          position: values.position,
           salaryGrade: values.salaryGrade,
           monthlySalary: values.monthlySalary,
         },
@@ -112,10 +113,12 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
     Icon: typeof Mail;
   }> = [
     {
+      // @ts-ignore
       key: 'email',
       Icon: Mail,
     },
     {
+      // @ts-ignore
       key: 'phone',
       Icon: Phone,
     },
@@ -196,7 +199,10 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
                   >
                     <Icon sx={{ fontSize: '1rem', mr: 1 }} />
                     <Typography color='textSecondary' variant='caption'>
-                      {employee.contact[key]}
+                      {
+                        // @ts-ignore
+                        employee.contact[key]
+                      }
                     </Typography>
                   </Box>
                 ))}
@@ -309,7 +315,7 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
         {/* // TODO: Endorsement Form*/}
         <Paper sx={{ p: 3 }}>
           <Typography variant='h6' sx={{ mb: 2 }}>
-            Endorsement Form
+            Promotion Endorsement Form
           </Typography>
           {/* // ** Fields */}
           <Formik
@@ -318,6 +324,7 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
                 status: 'pending',
                 employeeId: employee.id,
                 salaryGrade: latestEmployeeRecord.salaryGrade,
+                position: null,
                 monthlySalary: formatCurrency(
                   SALARY_GRADE[
                     Number(latestEmployeeRecord?.salaryGrade.split('-')[0]) -
@@ -332,8 +339,19 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
             }
             onSubmit={handleEndorsementSubmit}
           >
-            {({ setFieldValue, handleChange }) => (
+            {({ setFieldValue, handleChange, values }) => (
               <Form>
+                <Grid container spacing={2} mb={2}>
+                  <Grid item xs={12}>
+                    <Field
+                      component={TextField}
+                      name='position'
+                      id='position'
+                      label='Position'
+                      fullWidth={true}
+                    />
+                  </Grid>
+                </Grid>
                 <Grid container spacing={2} mb={2}>
                   <Grid item xs={6} md={6} lg={6}>
                     <Field
@@ -377,8 +395,12 @@ const ConfirmPromotionModal: FC<ConfirmPromotionModalProps> = ({
                 </Grid>
 
                 {/* // TODO: Submit button */}
-                <Button variant='contained' type='submit'>
-                  Submit Endorsement
+                <Button
+                  variant='contained'
+                  type='submit'
+                  disabled={!values.position}
+                >
+                  Submit Promotion Endorsement
                 </Button>
               </Form>
             )}

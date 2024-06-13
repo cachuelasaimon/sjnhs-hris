@@ -35,6 +35,7 @@ interface ICollections {
   users: ICollection;
   employees: ICollection;
   endorsements: ICollection;
+  promotionEndorsements: ICollection;
 }
 
 export const collections: ICollections = {
@@ -73,5 +74,9 @@ export const collections: ICollections = {
   loyaltyPays: {
     ref: collection(database, `${db_dev}/loyaltypay`),
     string: `${db_dev}/loyaltypay`,
+  },
+  promotionEndorsements: {
+    ref: collection(database, `${db_dev}/promotion-endorsements`),
+    string: `${db_dev}/promotion-endorsements`,
   },
 };

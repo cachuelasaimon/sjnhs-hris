@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
+import { IWorkExperience } from '~/types';
 import { Add, collections } from '~/utils'; // Import the Add function
 
 const useStyles = makeStyles((theme) => ({
@@ -52,7 +53,7 @@ const organizationSchema = z.object({
 
 const OrganizationForm: React.FC = () => {
   const classes = useStyles();
-  const navigate = useNavigate();
+  const _employeeDocnavigate = useNavigate();
 
   const formMethods = useForm<IWorkExperience>({
     resolver: zodResolver(organizationSchema),

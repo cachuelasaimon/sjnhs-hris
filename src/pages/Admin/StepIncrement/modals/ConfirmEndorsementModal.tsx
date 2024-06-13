@@ -114,10 +114,12 @@ const ConfirmEndorsementModal: FC<ConfirmEndorsementModalProps> = ({
     Icon: typeof Mail;
   }> = [
     {
+      // @ts-ignore
       key: 'email',
       Icon: Mail,
     },
     {
+      // @ts-ignore
       key: 'phone',
       Icon: Phone,
     },
