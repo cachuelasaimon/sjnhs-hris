@@ -186,7 +186,7 @@ const Promotions: FC = () => {
                     },
                     {
                       field: '',
-                      headerName: 'Promote',
+                      headerName: 'Endorse',
                       renderCell: (params: any) => {
                         return (
                           <Button
@@ -196,7 +196,7 @@ const Promotions: FC = () => {
                             }}
                             variant='contained'
                           >
-                            Promote
+                            Endorse
                           </Button>
                         );
                       },

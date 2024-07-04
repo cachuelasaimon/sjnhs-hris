@@ -319,6 +319,9 @@ const EmployeeList: FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
+            <MenuItem onClick={() => handleStatusChange('regular')}>
+              Regular
+            </MenuItem>
             <MenuItem onClick={() => handleStatusChange('retired')}>
               Retire
             </MenuItem>
@@ -327,6 +330,12 @@ const EmployeeList: FC = () => {
             </MenuItem>
             <MenuItem onClick={() => handleStatusChange('transferred')}>
               Transfer
+            </MenuItem>
+            <MenuItem onClick={() => handleStatusChange('sick leave')}>
+              Sick Leave
+            </MenuItem>
+            <MenuItem onClick={() => handleStatusChange('study leave')}>
+              Study Leave
             </MenuItem>
           </Menu>
         </>

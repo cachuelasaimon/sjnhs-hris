@@ -1,8 +1,10 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Button, Paper, Tab, Typography } from '@mui/material';
+import { Alert, Button, Paper, Snackbar, Tab, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { differenceInYears, format, parseISO } from 'date-fns';
 
 import { ConfirmEndorsementModal, ReviewEndorsementModal } from './modals';
 
@@ -28,7 +30,13 @@ const StepIncrement: FC = () => {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  // TODO: Fetch Employees & Endorsements
+  // ** Notification Handling
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+
+  const handleNotificationClose = () => setNotificationOpen(false);
+
+  // ** Fetch Employees & Endorsements
   const { docs: employees, isLoading: employeesLoading } = useListen<IEmployee>(
     {
       collectionRef: collections.employees.ref,
@@ -58,23 +66,49 @@ const StepIncrement: FC = () => {
   const handleActiveTabChange = (_: React.ChangeEvent<any>, newValue: string) =>
     setActiveTab(newValue);
 
+  useEffect(() => {
+    if (!isLoading) {
+      const employeesWith3Years = (employees || []).filter((employee) => {
+        const latestRecord = getLatestEntry({
+          arr: employee.employeeRecord || [],
+          referenceKey: 'startDate',
+        });
+        const yearsAtCurrentPosition = differenceInYears(
+          new Date(),
+          parseISO(latestRecord.startDate)
+        );
+
+        return yearsAtCurrentPosition === 3;
+      });
+
+      if (employeesWith3Years.length > 0) {
+        setNotificationMessage(
+          `${employeesWith3Years.length} employee(s) have reached 3 years of service.`
+        );
+        setNotificationOpen(true);
+      }
+    }
+  }, [employees, isLoading]);
+
   if (isLoading) return <>Loading...</>;
 
-  const employeesForEndorsement = (employees || []).filter(
-    (employee) =>
-      /**
-       * This logic should
-       * 1. Check if employee is eligible for endorsement
-       *   - Employees is eligible for endorsement if:
-       *     - Employees does not have pending endorsement(s)
-       * 2. Check if employee has pending endorsement(s)
-       *   - Fetch all endorsements of employee
-       *   - Check if any of the endorsements has status of 'pending'
-       */
+  const employeesForEndorsement = (employees || []).filter((employee) => {
+    const latestRecord = getLatestEntry({
+      arr: employee.employeeRecord || [],
+      referenceKey: 'startDate',
+    });
+    const yearsAtCurrentPosition = differenceInYears(
+      new Date(),
+      parseISO(latestRecord.startDate)
+    );
+
+    return (
+      yearsAtCurrentPosition >= 3 &&
       !endorsementsMap
         .get(employee?.employeeId || '')
         ?.some((endorsement) => endorsement.status === 'pending')
-  );
+    );
+  });
 
   const employeesWithPendingEndorsement =
     endorsementsMapByStatus.get('pending')?.map((endorsement) => ({
@@ -146,9 +180,23 @@ const StepIncrement: FC = () => {
                       width: 180,
                     },
                     {
-                      field: 'prcNo',
-                      headerName: 'PRC Pin',
+                      field: 'yearsInService',
+                      headerName: 'Years in Service',
                       width: 180,
+                      valueGetter: (params: any) => {
+                        const employeeRecord =
+                          (params.row.employeeRecord || []).length > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as IWorkExperience[],
+                                referenceKey: 'startDate',
+                              })
+                            : { startDate: '' };
+                        return differenceInYears(
+                          new Date(),
+                          parseISO(employeeRecord.startDate)
+                        );
+                      },
                     },
                     {
                       field: 'salaryGrade',
@@ -247,9 +295,23 @@ const StepIncrement: FC = () => {
                       width: 180,
                     },
                     {
-                      field: 'prcNo',
-                      headerName: 'PRC Pin',
+                      field: 'yearsInService',
+                      headerName: 'Years in Service',
                       width: 180,
+                      valueGetter: (params: any) => {
+                        const employeeRecord =
+                          (params.row.employeeRecord || []).length > 0
+                            ? getLatestEntry({
+                                arr: params.row
+                                  .employeeRecord as IWorkExperience[],
+                                referenceKey: 'startDate',
+                              })
+                            : { startDate: '' };
+                        return differenceInYears(
+                          new Date(),
+                          parseISO(employeeRecord.startDate)
+                        );
+                      },
                     },
                     {
                       field: 'salaryGrade',
@@ -385,7 +447,22 @@ const StepIncrement: FC = () => {
           )}
         </TabPanel> */}
       </TabContext>
+
+      <Snackbar
+        open={notificationOpen}
+        autoHideDuration={6000}
+        onClose={handleNotificationClose}
+      >
+        <Alert
+          onClose={handleNotificationClose}
+          severity='info'
+          sx={{ width: '100%' }}
+        >
+          {notificationMessage}
+        </Alert>
+      </Snackbar>
     </UserWrapper>
   );
 };
+
 export default StepIncrement;
