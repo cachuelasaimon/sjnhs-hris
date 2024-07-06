@@ -4,7 +4,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Alert, Button, Paper, Snackbar, Tab, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { differenceInYears, format, parseISO } from 'date-fns';
+import { differenceInYears, parseISO } from 'date-fns';
 
 import { ConfirmEndorsementModal, ReviewEndorsementModal } from './modals';
 
