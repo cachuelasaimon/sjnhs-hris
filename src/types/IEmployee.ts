@@ -18,6 +18,10 @@ export interface IEducationalBackground {
     minor?: string;
   };
 }
+interface TransferInfo {
+  transferDate: string;
+  destinationSchool: string;
+}
 
 export interface IFamilyBackground {
   spouseLastname?: string;
@@ -84,6 +88,7 @@ export interface IContact {
 }
 
 export interface IEmployee extends BaseSchema {
+  [x: string]: any;
   license: any;
   employeeId?: string;
   displayPicture?: string;
@@ -115,4 +120,5 @@ export interface IEmployee extends BaseSchema {
   trainingProg?: ITrainingProg[];
   otherInfo?: IOtherInfo;
   educationalRecord?: IEducationalBackground[];
+  transferInfo?: TransferInfo;
 }

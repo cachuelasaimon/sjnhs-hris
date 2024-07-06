@@ -221,6 +221,7 @@ const CivilService: FC<CivilServiceProps> = ({ defaultValues, onSave }) => {
   });
 
   const onSubmit = async (values: IEmployee) => {
+    // eslint-disable-next-line no-console
     console.log('Form Values:', values); // Debugging log
     try {
       await Add<IEmployee>({

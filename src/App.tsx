@@ -13,22 +13,15 @@ import '@fontsource/poppins/700.css';
 import { WithAuth } from '~/layouts';
 import {
   CivilService,
-  EducationalForm,
   EmployeeDetails,
   EmployeeList,
-  FamilyBg,
   ForgotPassword,
   Login,
   LoyaltyPay,
   NotFound,
-  OrganizationForm,
-  OtherInfo,
-  PersonalInfo,
   Promotions,
   SignUp,
   StepIncrement,
-  TrainingProg,
-  WorkExperience,
 } from '~/pages';
 import CustomTheme from '~/theme';
 import { IPage } from '~/types';
@@ -72,55 +65,14 @@ const Pages: IPage[] = [
     requireAdmin: false,
   },
   { path: '*', Component: NotFound, requireAuth: false, requireAdmin: false },
-  {
-    path: '/personal-info',
-    Component: PersonalInfo,
-    requireAuth: false,
-    requireAdmin: false,
-  },
 
-  {
-    path: '/family-bg',
-    Component: FamilyBg,
-    requireAuth: false,
-    requireAdmin: false,
-  },
-  {
-    path: '/educational-form',
-    Component: EducationalForm,
-    requireAuth: false,
-    requireAdmin: false,
-  },
   {
     path: '/civil-service',
     Component: CivilService,
     requireAuth: false,
     requireAdmin: false,
   },
-  {
-    path: '/work-experience',
-    Component: WorkExperience,
-    requireAuth: false,
-    requireAdmin: false,
-  },
-  {
-    path: '/organization-form',
-    Component: OrganizationForm,
-    requireAuth: false,
-    requireAdmin: false,
-  },
-  {
-    path: '/training-prog',
-    Component: TrainingProg,
-    requireAuth: false,
-    requireAdmin: false,
-  },
-  {
-    path: '/other-info',
-    Component: OtherInfo,
-    requireAuth: false,
-    requireAdmin: false,
-  },
+
   {
     path: '/employee-details',
     Component: EmployeeDetails,
